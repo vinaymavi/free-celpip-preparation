@@ -241,11 +241,11 @@ export default function ReadingSection() {
               </div>
             </div>
 
-            <div className="card flex-1">
+            <div className="card flex-1 flex flex-col max-h-screen">
               <h3 className="text-lg font-semibold text-gray-900 mb-6">
                 Questions
               </h3>
-              <div className="space-y-6">
+              <div className="space-y-6 overflow-y-auto flex-1 pr-2">
                 {currentPassage.questions.map((question, index) => (
                   <div
                     key={question.id}
