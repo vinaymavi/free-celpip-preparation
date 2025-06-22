@@ -18,7 +18,7 @@ export interface ModelConfig {
 
 // Default model configurations
 const DEFAULT_MODELS: Record<LLMProvider, string> = {
-  openai: "gpt-3.5-turbo",
+  openai: "o4-mini",
   anthropic: "claude-3-sonnet-20240229",
   google: "gemini-pro",
   cohere: "command-light",
@@ -104,12 +104,12 @@ export class LangChainService {
     const prompt = PromptTemplate.fromTemplate(`
 You are an expert CELPIP test creator. Generate a reading comprehension passage and questions.
 
-Topic: holiday Or a meal at a restaurant OR a family event such as a
+Topic: {topic}
 wedding
 
 Please create:
 1. A title for the passage (5-8 words)
-2. A reading passage (300-400 words) at intermediate to advanced English level
+2. A reading passage (800-1000 words) at advanced English level. This passage should be in format of informal email.
 3. 5 multiple-choice questions with 4 options each
 
 The passage should be:

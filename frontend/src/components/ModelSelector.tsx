@@ -15,7 +15,7 @@ interface ModelSelectorProps {
 const PROVIDER_INFO = {
   openai: {
     name: "OpenAI",
-    models: ["gpt-3.5-turbo", "gpt-4", "gpt-4-turbo"],
+    models: ["o4-mini", "gpt-3.5-turbo", "gpt-4", "gpt-4-turbo"],
     description: "Advanced language models with strong reasoning capabilities",
     envVar: "VITE_OPENAI_API_KEY",
   },

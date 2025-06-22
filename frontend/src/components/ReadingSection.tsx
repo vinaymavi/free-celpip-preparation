@@ -228,11 +228,8 @@ export default function ReadingSection() {
       ) : (
         <div className="space-y-8">
           <div className="flex flex-col lg:flex-row justify-between items-start space-y-4 lg:space-y-0 lg:space-x-4">
-            <div className="card flex-1">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                {currentPassage.title}
-              </h2>
-              <div className="prose max-w-none text-gray-700 leading-relaxed">
+            <div className="card flex-1 flex flex-col max-h-screen">
+              <div className="prose max-w-none text-gray-700 leading-relaxed overflow-y-auto max-h-[calc(100vh-12rem)] pr-2">
                 {currentPassage.content.split("\n").map((paragraph, index) => (
                   <p key={index} className="mb-4">
                     {paragraph}
