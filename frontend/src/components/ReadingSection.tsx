@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { SparklesIcon, ClockIcon } from "@heroicons/react/24/outline";
+import {
+  SparklesIcon,
+  ClockIcon,
+  ExclamationTriangleIcon,
+} from "@heroicons/react/24/outline";
+import { generateReadingPassage } from "../utils/api";
+import ModelSelector from "./ModelSelector";
+import type { ModelConfig } from "../utils/langchain";
 
 interface Question {
   id: number;
@@ -23,87 +30,37 @@ export default function ReadingSection() {
     [key: number]: number;
   }>({});
   const [showResults, setShowResults] = useState(false);
+  const [topic, setTopic] = useState("");
+  const [error, setError] = useState<string | null>(null);
+
+  const handleModelChange = (config: ModelConfig) => {
+    // Model configuration updated
+    console.log("Model configured:", config);
+    setError(null);
+  };
 
   const generatePassage = async () => {
     setIsGenerating(true);
+    setError(null);
 
-    // Simulate API call to generate content
-    setTimeout(() => {
-      const samplePassage: ReadingPassage = {
-        title: "The Benefits of Urban Gardening",
-        content: `Urban gardening has become increasingly popular in recent years as more people recognize its numerous benefits for both individuals and communities. This practice involves growing plants, vegetables, and herbs in urban environments, utilizing spaces such as rooftops, balconies, community gardens, and even indoor areas.
+    try {
+      const result = await generateReadingPassage(topic || undefined);
 
-One of the primary advantages of urban gardening is its positive impact on food security. By growing their own produce, urban residents can access fresh, nutritious foods while reducing their dependence on commercially grown vegetables that may have traveled long distances. This local production also helps reduce the carbon footprint associated with food transportation.
+      if (!result.success || !result.data) {
+        throw new Error(result.error || "Failed to generate passage");
+      }
 
-Furthermore, urban gardening contributes significantly to environmental sustainability. Plants in urban areas help improve air quality by absorbing carbon dioxide and releasing oxygen. They also help regulate temperature, reducing the urban heat island effect that makes cities warmer than surrounding areas. Additionally, urban gardens can help manage stormwater runoff, reducing the burden on city drainage systems.
-
-The social benefits of urban gardening are equally important. Community gardens bring neighbors together, fostering social connections and strengthening community bonds. These spaces often serve as educational environments where people can learn about sustainable agriculture and environmental stewardship. For many urban dwellers, gardening provides a therapeutic outlet that reduces stress and promotes mental well-being.
-
-Economic benefits also make urban gardening attractive. Growing your own food can significantly reduce grocery bills, especially for families with limited budgets. Some urban gardeners even turn their hobby into small businesses, selling excess produce at local farmers' markets or to restaurants.`,
-        questions: [
-          {
-            id: 1,
-            question:
-              "According to the passage, which of the following is NOT mentioned as a location for urban gardening?",
-            options: ["Rooftops", "Public parks", "Balconies", "Indoor areas"],
-            correctAnswer: 1,
-          },
-          {
-            id: 2,
-            question:
-              "The passage suggests that urban gardening helps with food security by:",
-            options: [
-              "Increasing commercial food production",
-              "Reducing dependence on distant food sources",
-              "Eliminating the need for grocery stores",
-              "Providing jobs in the agricultural sector",
-            ],
-            correctAnswer: 1,
-          },
-          {
-            id: 3,
-            question:
-              "What environmental benefit is mentioned regarding temperature regulation?",
-            options: [
-              "Urban gardens create cooler microclimates",
-              "Plants reduce the urban heat island effect",
-              "Gardening eliminates air pollution",
-              "Urban farms prevent climate change",
-            ],
-            correctAnswer: 1,
-          },
-          {
-            id: 4,
-            question:
-              "The social benefits of urban gardening include all of the following EXCEPT:",
-            options: [
-              "Bringing neighbors together",
-              "Providing educational opportunities",
-              "Reducing crime rates",
-              "Promoting mental well-being",
-            ],
-            correctAnswer: 2,
-          },
-          {
-            id: 5,
-            question:
-              "According to the passage, the economic benefits of urban gardening include:",
-            options: [
-              "Increasing property values",
-              "Creating government revenue",
-              "Reducing grocery expenses",
-              "Attracting tourism",
-            ],
-            correctAnswer: 2,
-          },
-        ],
-      };
-
-      setCurrentPassage(samplePassage);
+      setCurrentPassage(result.data);
       setSelectedAnswers({});
       setShowResults(false);
+    } catch (error) {
+      console.error("Failed to generate passage:", error);
+      setError(
+        error instanceof Error ? error.message : "Failed to generate passage"
+      );
+    } finally {
       setIsGenerating(false);
-    }, 2000);
+    }
   };
 
   const handleAnswerSelect = (questionId: number, answerIndex: number) => {
@@ -131,13 +88,18 @@ Economic benefits also make urban gardening attractive. Growing your own food ca
   return (
     <div className="px-4 sm:px-0">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
-          Reading Comprehension
-        </h1>
-        <p className="mt-2 text-lg text-gray-600">
-          Practice reading passages with multiple-choice questions similar to
-          the CELPIP test format.
-        </p>
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Reading Comprehension
+            </h1>
+            <p className="mt-2 text-lg text-gray-600">
+              Practice reading passages with multiple-choice questions similar
+              to the CELPIP test format.
+            </p>
+          </div>
+          <ModelSelector onModelChange={handleModelChange} />
+        </div>
       </div>
 
       {!currentPassage ? (
@@ -148,9 +110,31 @@ Economic benefits also make urban gardening attractive. Growing your own food ca
               Generate Reading Passage
             </h3>
             <p className="mt-2 text-sm text-gray-600">
-              Click the button below to generate a new reading passage with
+              Configure an AI model and generate a new reading passage with
               comprehension questions.
             </p>
+
+            {/* Topic Input */}
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Topic (Optional)
+              </label>
+              <input
+                type="text"
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                placeholder="e.g., environmental science, technology, health..."
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              />
+            </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                <p className="text-sm text-red-600">{error}</p>
+              </div>
+            )}
+
             <button
               onClick={generatePassage}
               disabled={isGenerating}

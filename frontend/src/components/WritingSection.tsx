@@ -4,6 +4,9 @@ import {
   ClockIcon,
   DocumentTextIcon,
 } from "@heroicons/react/24/outline";
+import { generateWritingPrompt } from "../utils/api";
+import ModelSelector from "./ModelSelector";
+import type { ModelConfig } from "../utils/langchain";
 
 interface WritingPrompt {
   type: "email" | "essay";
