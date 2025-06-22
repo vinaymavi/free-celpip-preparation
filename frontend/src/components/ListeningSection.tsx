@@ -12,6 +12,11 @@ interface Question {
   question: string;
   options: string[];
   correctAnswer: number;
+  // New properties for fill-in-the-blank style questions
+  questionParts?: {
+    before: string;
+    after: string;
+  };
 }
 
 interface ListeningTask {
@@ -67,51 +72,71 @@ Mike: Great! I'll see you on Saturday then. Thanks for inviting me - it'll be a 
         questions: [
           {
             id: 1,
-            question: "What does Sarah want to do this weekend?",
+            question: "Sarah's plan for the weekend",
+            questionParts: {
+              before: "Sarah wants to",
+              after: "this weekend."
+            },
             options: [
-              "Stay home and read",
-              "Visit a new art museum",
-              "Go shopping downtown",
-              "Attend a music concert",
+              "stay home and read",
+              "visit a new art museum",
+              "go shopping downtown",
+              "attend a music concert",
             ],
             correctAnswer: 1,
           },
           {
             id: 2,
-            question: "What type of exhibition is currently at the museum?",
+            question: "The museum exhibition theme",
+            questionParts: {
+              before: "The museum has a special exhibition on",
+              after: "."
+            },
             options: [
-              "Ancient Roman artifacts",
+              "ancient Roman artifacts",
               "European classical paintings",
-              "Modern Canadian artists",
-              "Contemporary sculptures",
+              "modern Canadian artists",
+              "contemporary sculptures",
             ],
             correctAnswer: 2,
           },
           {
             id: 3,
-            question: "What time do they plan to meet?",
+            question: "Meeting time arrangement",
+            questionParts: {
+              before: "Mike will pick up Sarah at",
+              after: "."
+            },
             options: ["10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM"],
             correctAnswer: 1,
           },
           {
             id: 4,
-            question: "Why does Sarah prefer that Mike picks her up?",
+            question: "Sarah's transportation preference",
+            questionParts: {
+              before: "Sarah prefers that Mike picks her up because",
+              after: "."
+            },
             options: [
-              "She doesn't have a car",
-              "She doesn't like driving",
-              "Parking downtown is expensive",
+              "she doesn't have a car",
+              "she doesn't like driving",
+              "parking downtown is expensive",
               "Mike offered to drive",
             ],
             correctAnswer: 2,
           },
           {
             id: 5,
-            question: "What do they plan to do on the way to the museum?",
+            question: "Additional plan during the trip",
+            questionParts: {
+              before: "On the way to the museum, they plan to",
+              after: "."
+            },
             options: [
-              "Have breakfast",
-              "Get coffee",
-              "Buy tickets online",
-              "Stop at a bookstore",
+              "have breakfast",
+              "get coffee",
+              "buy tickets online",
+              "stop at a bookstore",
             ],
             correctAnswer: 1,
           },
@@ -322,13 +347,21 @@ Mike: Great! I'll see you on Saturday then. Thanks for inviting me - it'll be a 
 
             {/* Instructions */}
             <div className="bg-blue-50 p-4 rounded-lg mb-6">
-              <h4 className="font-medium text-gray-900 mb-2">Instructions:</h4>
-              <ul className="text-sm text-gray-600 space-y-1">
-                <li>• Listen to the audio clip carefully</li>
-                <li>• You can play the audio multiple times</li>
-                <li>• Answer all questions based on what you heard</li>
-                <li>• Choose the best answer for each question</li>
-              </ul>
+              <div className="flex items-start space-x-3">
+                <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-white text-sm font-medium">i</span>
+                </div>
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-2">
+                    Using the drop-down menu (↓), choose the best option according to the information given in the message.
+                  </h4>
+                  <ul className="text-sm text-gray-600 space-y-1">
+                    <li>• Listen to the audio clip carefully</li>
+                    <li>• You can play the audio multiple times</li>
+                    <li>• Complete each sentence by selecting the best option from the dropdown</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -338,59 +371,85 @@ Mike: Great! I'll see you on Saturday then. Thanks for inviting me - it'll be a 
             </h3>
             <div className="space-y-6">
               {currentTask.questions.map((question, index) => (
-                <div
-                  key={question.id}
-                  className="border-l-4 border-primary-200 pl-4"
-                >
-                  <h4 className="text-base font-medium text-gray-900 mb-3">
-                    {index + 1}. {question.question}
-                  </h4>
-                  <div className="space-y-2">
-                    {question.options.map((option, optionIndex) => (
-                      <label
-                        key={optionIndex}
-                        className={`flex items-center p-3 rounded-lg cursor-pointer transition-colors ${
-                          selectedAnswers[question.id] === optionIndex
-                            ? "bg-primary-50 border-primary-200 border"
-                            : "bg-gray-50 hover:bg-gray-100 border border-transparent"
-                        } ${
-                          showResults
-                            ? optionIndex === question.correctAnswer
-                              ? "bg-green-50 border-green-200"
-                              : selectedAnswers[question.id] === optionIndex &&
-                                optionIndex !== question.correctAnswer
-                              ? "bg-red-50 border-red-200"
-                              : ""
-                            : ""
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name={`question-${question.id}`}
-                          value={optionIndex}
-                          checked={selectedAnswers[question.id] === optionIndex}
-                          onChange={() =>
-                            handleAnswerSelect(question.id, optionIndex)
-                          }
-                          disabled={showResults}
-                          className="text-primary-600 focus:ring-primary-500"
-                        />
-                        <span className="ml-3 text-gray-700">{option}</span>
-                        {showResults &&
-                          optionIndex === question.correctAnswer && (
-                            <span className="ml-auto text-green-600 text-sm font-medium">
-                              ✓ Correct
-                            </span>
+                <div key={question.id} className="space-y-3">
+                  <div className="flex items-start space-x-3">
+                    <span className="font-medium text-gray-900 mt-1">
+                      {index + 1}.
+                    </span>
+                    <div className="flex-1">
+                      {question.questionParts ? (
+                        <div className="text-gray-900 leading-relaxed">
+                          <span>{question.questionParts.before} </span>
+                          <div className="inline-block relative">
+                            <select
+                              value={selectedAnswers[question.id] ?? ''}
+                              onChange={(e) =>
+                                handleAnswerSelect(question.id, parseInt(e.target.value))
+                              }
+                              disabled={showResults}
+                              className={`inline-block min-w-[200px] px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                                showResults
+                                  ? selectedAnswers[question.id] === question.correctAnswer
+                                    ? "bg-green-50 border-green-300 text-green-800"
+                                    : selectedAnswers[question.id] !== undefined
+                                    ? "bg-red-50 border-red-300 text-red-800"
+                                    : "bg-gray-50 border-gray-300"
+                                  : selectedAnswers[question.id] !== undefined
+                                  ? "bg-primary-50 border-primary-300"
+                                  : "bg-white border-gray-300"
+                              }`}
+                            >
+                              <option value="">Choose an option ↓</option>
+                              {question.options.map((option, optionIndex) => (
+                                <option key={optionIndex} value={optionIndex}>
+                                  {option}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <span> {question.questionParts.after}</span>
+                          {showResults && (
+                            <div className="mt-2 text-sm">
+                              {selectedAnswers[question.id] === question.correctAnswer ? (
+                                <span className="text-green-600 font-medium">
+                                  ✓ Correct
+                                </span>
+                              ) : selectedAnswers[question.id] !== undefined ? (
+                                <span className="text-red-600 font-medium">
+                                  ✗ Incorrect - Correct answer: {question.options[question.correctAnswer]}
+                                </span>
+                              ) : (
+                                <span className="text-gray-600">
+                                  Not answered - Correct answer: {question.options[question.correctAnswer]}
+                                </span>
+                              )}
+                            </div>
                           )}
-                        {showResults &&
-                          selectedAnswers[question.id] === optionIndex &&
-                          optionIndex !== question.correctAnswer && (
-                            <span className="ml-auto text-red-600 text-sm font-medium">
-                              ✗ Incorrect
-                            </span>
-                          )}
-                      </label>
-                    ))}
+                        </div>
+                      ) : (
+                        // Fallback for questions without questionParts (original format)
+                        <div>
+                          <h4 className="text-base font-medium text-gray-900 mb-3">
+                            {question.question}
+                          </h4>
+                          <select
+                            value={selectedAnswers[question.id] ?? ''}
+                            onChange={(e) =>
+                              handleAnswerSelect(question.id, parseInt(e.target.value))
+                            }
+                            disabled={showResults}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          >
+                            <option value="">Choose an option</option>
+                            {question.options.map((option, optionIndex) => (
+                              <option key={optionIndex} value={optionIndex}>
+                                {option}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -400,10 +459,6 @@ Mike: Great! I'll see you on Saturday then. Thanks for inviting me - it'll be a 
               {!showResults ? (
                 <button
                   onClick={submitAnswers}
-                  disabled={
-                    Object.keys(selectedAnswers).length !==
-                    currentTask.questions.length
-                  }
                   className="btn btn-primary"
                 >
                   Submit Answers

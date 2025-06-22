@@ -1,14 +1,17 @@
 import { useState } from "react";
 import { SparklesIcon, ClockIcon } from "@heroicons/react/24/outline";
 import { generateReadingPassage } from "../utils/api";
-import ModelSelector from "./ModelSelector";
-import type { ModelConfig } from "../utils/langchain";
 
 interface Question {
   id: number;
   question: string;
   options: string[];
   correctAnswer: number;
+  // New properties for fill-in-the-blank style questions
+  questionParts?: {
+    before: string;
+    after: string;
+  };
 }
 
 interface ReadingPassage {
@@ -28,12 +31,6 @@ export default function ReadingSection() {
   const [showResults, setShowResults] = useState(false);
   const [topic, setTopic] = useState("");
   const [error, setError] = useState<string | null>(null);
-
-  const handleModelChange = (config: ModelConfig) => {
-    // Model configuration updated
-    console.log("Model configured:", config);
-    setError(null);
-  };
 
   const generatePassage = async () => {
     setIsGenerating(true);
@@ -94,7 +91,6 @@ export default function ReadingSection() {
               to the CELPIP test format.
             </p>
           </div>
-          <ModelSelector onModelChange={handleModelChange} />
         </div>
       </div>
 
@@ -242,64 +238,133 @@ export default function ReadingSection() {
               <h3 className="text-lg font-semibold text-gray-900 mb-6">
                 Questions
               </h3>
+              <div className="bg-blue-50 p-4 rounded-lg mb-6">
+                <div className="flex items-start space-x-3">
+                  <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-white text-sm font-medium">i</span>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-2">
+                      Using the drop-down menu (↓), choose the best option
+                      according to the information given in the passage.
+                    </h4>
+                  </div>
+                </div>
+              </div>
               <div className="space-y-6 overflow-y-auto flex-1 pr-2">
                 {currentPassage.questions.map((question, index) => (
-                  <div
-                    key={question.id}
-                    className="border-l-4 border-primary-200 pl-4"
-                  >
-                    <h4 className="text-base font-medium text-gray-900 mb-3">
-                      {index + 1}. {question.question}
-                    </h4>
-                    <div className="space-y-2">
-                      {question.options.map((option, optionIndex) => (
-                        <label
-                          key={optionIndex}
-                          className={`flex items-center p-3 rounded-lg cursor-pointer transition-colors ${
-                            selectedAnswers[question.id] === optionIndex
-                              ? "bg-primary-50 border-primary-200 border"
-                              : "bg-gray-50 hover:bg-gray-100 border border-transparent"
-                          } ${
-                            showResults
-                              ? optionIndex === question.correctAnswer
-                                ? "bg-green-50 border-green-200"
-                                : selectedAnswers[question.id] ===
-                                    optionIndex &&
-                                  optionIndex !== question.correctAnswer
-                                ? "bg-red-50 border-red-200"
-                                : ""
-                              : ""
-                          }`}
-                        >
-                          <input
-                            type="radio"
-                            name={`question-${question.id}`}
-                            value={optionIndex}
-                            checked={
-                              selectedAnswers[question.id] === optionIndex
-                            }
-                            onChange={() =>
-                              handleAnswerSelect(question.id, optionIndex)
-                            }
-                            disabled={showResults}
-                            className="text-primary-600 focus:ring-primary-500"
-                          />
-                          <span className="ml-3 text-gray-700">{option}</span>
-                          {showResults &&
-                            optionIndex === question.correctAnswer && (
-                              <span className="ml-auto text-green-600 text-sm font-medium">
-                                ✓ Correct
-                              </span>
+                  <div key={question.id} className="space-y-3">
+                    <div className="flex items-start space-x-3">
+                      <span className="font-medium text-gray-900 mt-1">
+                        {index + 1}.
+                      </span>
+                      <div className="flex-1">
+                        {question.questionParts ? (
+                          <div className="text-gray-900 leading-relaxed">
+                            <span>{question.questionParts.before} </span>
+                            <div className="inline-block relative">
+                              <select
+                                value={selectedAnswers[question.id] ?? ""}
+                                onChange={(e) =>
+                                  handleAnswerSelect(
+                                    question.id,
+                                    parseInt(e.target.value)
+                                  )
+                                }
+                                disabled={showResults}
+                                className={`inline-block min-w-[200px] px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                                  showResults
+                                    ? selectedAnswers[question.id] ===
+                                      question.correctAnswer
+                                      ? "bg-green-50 border-green-300 text-green-800"
+                                      : selectedAnswers[question.id] !==
+                                        undefined
+                                      ? "bg-red-50 border-red-300 text-red-800"
+                                      : "bg-gray-50 border-gray-300"
+                                    : selectedAnswers[question.id] !== undefined
+                                    ? "bg-primary-50 border-primary-300"
+                                    : "bg-white border-gray-300"
+                                }`}
+                              >
+                                <option value="">Choose an option ↓</option>
+                                {question.options.map((option, optionIndex) => (
+                                  <option key={optionIndex} value={optionIndex}>
+                                    {option}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                            <span> {question.questionParts.after}</span>
+                            {showResults && (
+                              <div className="mt-2 text-sm">
+                                {selectedAnswers[question.id] ===
+                                question.correctAnswer ? (
+                                  <span className="text-green-600 font-medium">
+                                    ✓ Correct
+                                  </span>
+                                ) : selectedAnswers[question.id] !==
+                                  undefined ? (
+                                  <span className="text-red-600 font-medium">
+                                    ✗ Incorrect - Correct answer:{" "}
+                                    {question.options[question.correctAnswer]}
+                                  </span>
+                                ) : (
+                                  <span className="text-gray-600">
+                                    Not answered - Correct answer:{" "}
+                                    {question.options[question.correctAnswer]}
+                                  </span>
+                                )}
+                              </div>
                             )}
-                          {showResults &&
-                            selectedAnswers[question.id] === optionIndex &&
-                            optionIndex !== question.correctAnswer && (
-                              <span className="ml-auto text-red-600 text-sm font-medium">
-                                ✗ Incorrect
-                              </span>
+                          </div>
+                        ) : (
+                          // Fallback for questions without questionParts (original format)
+                          <div>
+                            <h4 className="text-base font-medium text-gray-900 mb-3">
+                              {question.question}
+                            </h4>
+                            <select
+                              value={selectedAnswers[question.id] ?? ""}
+                              onChange={(e) =>
+                                handleAnswerSelect(
+                                  question.id,
+                                  parseInt(e.target.value)
+                                )
+                              }
+                              disabled={showResults}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                            >
+                              <option value="">Choose an option</option>
+                              {question.options.map((option, optionIndex) => (
+                                <option key={optionIndex} value={optionIndex}>
+                                  {option}
+                                </option>
+                              ))}
+                            </select>
+                            {showResults && (
+                              <div className="mt-2 text-sm">
+                                {selectedAnswers[question.id] ===
+                                question.correctAnswer ? (
+                                  <span className="text-green-600 font-medium">
+                                    ✓ Correct
+                                  </span>
+                                ) : selectedAnswers[question.id] !==
+                                  undefined ? (
+                                  <span className="text-red-600 font-medium">
+                                    ✗ Incorrect - Correct answer:{" "}
+                                    {question.options[question.correctAnswer]}
+                                  </span>
+                                ) : (
+                                  <span className="text-gray-600">
+                                    Not answered - Correct answer:{" "}
+                                    {question.options[question.correctAnswer]}
+                                  </span>
+                                )}
+                              </div>
                             )}
-                        </label>
-                      ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -307,14 +372,7 @@ export default function ReadingSection() {
 
               <div className="mt-8 flex justify-between">
                 {!showResults ? (
-                  <button
-                    onClick={submitAnswers}
-                    disabled={
-                      Object.keys(selectedAnswers).length !==
-                      currentPassage.questions.length
-                    }
-                    className="btn btn-primary"
-                  >
+                  <button onClick={submitAnswers} className="btn btn-primary">
                     Submit Answers
                   </button>
                 ) : (
