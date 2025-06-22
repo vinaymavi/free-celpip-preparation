@@ -1,41 +1,57 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 
-@layer base {
-  body {
-    font-family: "Inter", system-ui, sans-serif;
-  }
+body {
+  font-family: "Inter", system-ui, sans-serif;
 }
 
-@layer components {
-  .btn {
-    @apply px-4 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2;
-  }
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  outline: none;
+  border: none;
+  cursor: pointer;
+}
 
-  .btn-primary {
-    @apply bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500;
-  }
+.btn:focus {
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+}
 
-  .btn-secondary {
-    @apply bg-secondary-100 text-secondary-900 hover:bg-secondary-200 focus:ring-secondary-500;
-  }
+.btn-primary {
+  background-color: #2563eb;
+  color: white;
+}
 
-  .btn-outline {
-    @apply border border-secondary-300 text-secondary-700 hover:bg-secondary-50 focus:ring-secondary-500;
-  }
+.btn-primary:hover {
+  background-color: #1d4ed8;
+}
 
-  .card {
-    @apply bg-white rounded-xl shadow-sm border border-secondary-200 p-6;
-  }
+.btn-secondary {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
 
-  .input {
-    @apply w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors;
-  }
+.btn-secondary:hover {
+  background-color: #e2e8f0;
+}
 
-  .textarea {
-    @apply w-full px-3 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-colors resize-vertical;
-  }
+.btn-outline {
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  background-color: transparent;
+}
+
+.btn-outline:hover {
+  background-color: #f8fafc;
+}
+
+.card {
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  border: 1px solid #e2e8f0;
+  padding: 1.5rem;
 }
