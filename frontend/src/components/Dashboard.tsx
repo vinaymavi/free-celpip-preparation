@@ -1,4 +1,3 @@
-import React from "react";
 import {
   ChartBarIcon,
   BookOpenIcon,
@@ -7,8 +6,10 @@ import {
   SpeakerWaveIcon,
 } from "@heroicons/react/24/outline";
 
+type Section = "dashboard" | "reading" | "writing" | "speaking" | "listening";
+
 interface DashboardProps {
-  onSectionSelect: (section: string) => void;
+  onSectionSelect: (section: Section) => void;
 }
 
 export default function Dashboard({ onSectionSelect }: DashboardProps) {
@@ -17,28 +18,28 @@ export default function Dashboard({ onSectionSelect }: DashboardProps) {
       name: "Reading",
       description: "Practice reading comprehension with passages and questions",
       icon: BookOpenIcon,
-      section: "reading",
+      section: "reading" as Section,
       color: "bg-blue-500",
     },
     {
       name: "Writing",
       description: "Improve your writing skills with guided exercises",
       icon: PencilIcon,
-      section: "writing",
+      section: "writing" as Section,
       color: "bg-green-500",
     },
     {
       name: "Speaking",
       description: "Practice speaking tasks and get feedback",
       icon: MicrophoneIcon,
-      section: "speaking",
+      section: "speaking" as Section,
       color: "bg-red-500",
     },
     {
       name: "Listening",
       description: "Listen to audio clips and answer comprehension questions",
       icon: SpeakerWaveIcon,
-      section: "listening",
+      section: "listening" as Section,
       color: "bg-purple-500",
     },
   ];
