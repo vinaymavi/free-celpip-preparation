@@ -104,7 +104,8 @@ export class LangChainService {
     const prompt = PromptTemplate.fromTemplate(`
 You are an expert CELPIP test creator. Generate a reading comprehension passage and questions.
 
-Topic: {topic}
+Topic: holiday Or a meal at a restaurant OR a family event such as a
+wedding
 
 Please create:
 1. A title for the passage (5-8 words)

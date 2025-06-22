@@ -43,6 +43,35 @@ const PROVIDER_INFO = {
   },
 };
 
+const STORAGE_KEY = "celpip-model-config";
+
+// Utility functions for localStorage
+const saveModelConfig = (config: ModelConfig) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+  } catch (error) {
+    console.warn("Failed to save model config to localStorage:", error);
+  }
+};
+
+const loadModelConfig = (): ModelConfig | null => {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : null;
+  } catch (error) {
+    console.warn("Failed to load model config from localStorage:", error);
+    return null;
+  }
+};
+
+const clearModelConfig = () => {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch (error) {
+    console.warn("Failed to clear model config from localStorage:", error);
+  }
+};
+
 export default function ModelSelector({
   onModelChange,
   className = "",
@@ -60,6 +89,36 @@ export default function ModelSelector({
   }>({ status: "idle" });
 
   useEffect(() => {
+    // Load saved configuration from localStorage
+    const savedConfig = loadModelConfig();
+    if (savedConfig && savedConfig.model && savedConfig.apiKey) {
+      setSelectedProvider(savedConfig.provider);
+      setSelectedModel(savedConfig.model);
+      setTemperature(savedConfig.temperature ?? 0.7);
+      setApiKey(savedConfig.apiKey);
+
+      // Auto-initialize the model if we have a saved config
+      langChainService
+        .initializeLLM(savedConfig)
+        .then(() => {
+          setInitializationStatus({
+            status: "success",
+            message: `${PROVIDER_INFO[savedConfig.provider].name} ${
+              savedConfig.model
+            } loaded from saved configuration`,
+          });
+          onModelChange?.(savedConfig);
+        })
+        .catch(() => {
+          setInitializationStatus({
+            status: "error",
+            message: "Failed to initialize saved model configuration",
+          });
+        });
+    }
+  }, [onModelChange]);
+
+  useEffect(() => {
     // Load API key from environment variable if available
     const envApiKey = import.meta.env[PROVIDER_INFO[selectedProvider].envVar];
     if (envApiKey) {
@@ -71,6 +130,9 @@ export default function ModelSelector({
     setSelectedProvider(provider);
     setSelectedModel(PROVIDER_INFO[provider].models[0]);
     setInitializationStatus({ status: "idle" });
+
+    // Clear saved configuration when manually changing providers
+    clearModelConfig();
 
     // Load API key from environment if available
     const envApiKey = import.meta.env[PROVIDER_INFO[provider].envVar];
@@ -107,6 +169,9 @@ export default function ModelSelector({
       };
 
       await langChainService.initializeLLM(config);
+
+      // Save the configuration to localStorage on successful initialization
+      saveModelConfig(config);
 
       setInitializationStatus({
         status: "success",
