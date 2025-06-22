@@ -110,18 +110,93 @@ export default function ReadingSection() {
               comprehension questions.
             </p>
 
-            {/* Topic Input */}
+            {/* Topic Selection */}
             <div className="mt-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Topic (Optional)
               </label>
-              <input
-                type="text"
+              <select
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
-                placeholder="e.g., environmental science, technology, health..."
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              />
+              >
+                <option value="">Select a topic...</option>
+                <option value="Birthday Celebration Planning">
+                  Birthday Celebration Planning
+                </option>
+                <option value="Family Wedding Invitation or Update">
+                  Family Wedding Invitation or Update
+                </option>
+                <option value="Holiday Trip Details or Suggestions">
+                  Holiday Trip Details or Suggestions
+                </option>
+                <option value="Dinner at a New Restaurant">
+                  Dinner at a New Restaurant
+                </option>
+                <option value="Moving to a New Apartment or City">
+                  Moving to a New Apartment or City
+                </option>
+                <option value="Attending a Friend's Graduation Ceremony">
+                  Attending a Friend's Graduation Ceremony
+                </option>
+                <option value="Weekend Getaway or Camping Trip">
+                  Weekend Getaway or Camping Trip
+                </option>
+                <option value="Hosting a Surprise Party">
+                  Hosting a Surprise Party
+                </option>
+                <option value="Asking for Help with a School Project">
+                  Asking for Help with a School Project
+                </option>
+                <option value="Thanking a Friend for Their Help">
+                  Thanking a Friend for Their Help
+                </option>
+                <option value="Inviting Someone to a Cultural Event">
+                  Inviting Someone to a Cultural Event
+                </option>
+                <option value="Apologizing for Missing a Meeting or Event">
+                  Apologizing for Missing a Meeting or Event
+                </option>
+                <option value="Describing a Fun Day at the Beach or Park">
+                  Describing a Fun Day at the Beach or Park
+                </option>
+                <option value="Discussing Pets and Pet Care">
+                  Discussing Pets and Pet Care
+                </option>
+                <option value="Sharing Exciting News (e.g., New Job, Promotion)">
+                  Sharing Exciting News (e.g., New Job, Promotion)
+                </option>
+                <option value="Arranging a Playdate for Children">
+                  Arranging a Playdate for Children
+                </option>
+                <option value="Giving Feedback about a Movie or Book">
+                  Giving Feedback about a Movie or Book
+                </option>
+                <option value="Catching Up After a Long Time">
+                  Catching Up After a Long Time
+                </option>
+                <option value="Explaining Why You Were Late">
+                  Explaining Why You Were Late
+                </option>
+                <option value="Sending Congratulations on a New Baby">
+                  Sending Congratulations on a New Baby
+                </option>
+                <option value="Sharing Recipes or Cooking Experiences">
+                  Sharing Recipes or Cooking Experiences
+                </option>
+                <option value="Talking About a Family Reunion">
+                  Talking About a Family Reunion
+                </option>
+                <option value="Discussing Summer Plans or Winter Break">
+                  Discussing Summer Plans or Winter Break
+                </option>
+                <option value="Inviting Friends Over for a Barbecue">
+                  Inviting Friends Over for a Barbecue
+                </option>
+                <option value="Requesting to Borrow an Item (e.g., bike, tent)">
+                  Requesting to Borrow an Item (e.g., bike, tent)
+                </option>
+              </select>
             </div>
 
             {/* Error Message */}
