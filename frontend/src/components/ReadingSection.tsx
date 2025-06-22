@@ -227,113 +227,122 @@ export default function ReadingSection() {
         </div>
       ) : (
         <div className="space-y-8">
-          <div className="card">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
-              {currentPassage.title}
-            </h2>
-            <div className="prose max-w-none text-gray-700 leading-relaxed">
-              {currentPassage.content.split("\n").map((paragraph, index) => (
-                <p key={index} className="mb-4">
-                  {paragraph}
-                </p>
-              ))}
+          <div className="flex flex-col lg:flex-row justify-between items-start space-y-4 lg:space-y-0 lg:space-x-4">
+            <div className="card flex-1">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                {currentPassage.title}
+              </h2>
+              <div className="prose max-w-none text-gray-700 leading-relaxed">
+                {currentPassage.content.split("\n").map((paragraph, index) => (
+                  <p key={index} className="mb-4">
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
             </div>
-          </div>
 
-          <div className="card">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">
-              Questions
-            </h3>
-            <div className="space-y-6">
-              {currentPassage.questions.map((question, index) => (
-                <div
-                  key={question.id}
-                  className="border-l-4 border-primary-200 pl-4"
-                >
-                  <h4 className="text-base font-medium text-gray-900 mb-3">
-                    {index + 1}. {question.question}
-                  </h4>
-                  <div className="space-y-2">
-                    {question.options.map((option, optionIndex) => (
-                      <label
-                        key={optionIndex}
-                        className={`flex items-center p-3 rounded-lg cursor-pointer transition-colors ${
-                          selectedAnswers[question.id] === optionIndex
-                            ? "bg-primary-50 border-primary-200 border"
-                            : "bg-gray-50 hover:bg-gray-100 border border-transparent"
-                        } ${
-                          showResults
-                            ? optionIndex === question.correctAnswer
-                              ? "bg-green-50 border-green-200"
-                              : selectedAnswers[question.id] === optionIndex &&
-                                optionIndex !== question.correctAnswer
-                              ? "bg-red-50 border-red-200"
+            <div className="card flex-1">
+              <h3 className="text-lg font-semibold text-gray-900 mb-6">
+                Questions
+              </h3>
+              <div className="space-y-6">
+                {currentPassage.questions.map((question, index) => (
+                  <div
+                    key={question.id}
+                    className="border-l-4 border-primary-200 pl-4"
+                  >
+                    <h4 className="text-base font-medium text-gray-900 mb-3">
+                      {index + 1}. {question.question}
+                    </h4>
+                    <div className="space-y-2">
+                      {question.options.map((option, optionIndex) => (
+                        <label
+                          key={optionIndex}
+                          className={`flex items-center p-3 rounded-lg cursor-pointer transition-colors ${
+                            selectedAnswers[question.id] === optionIndex
+                              ? "bg-primary-50 border-primary-200 border"
+                              : "bg-gray-50 hover:bg-gray-100 border border-transparent"
+                          } ${
+                            showResults
+                              ? optionIndex === question.correctAnswer
+                                ? "bg-green-50 border-green-200"
+                                : selectedAnswers[question.id] ===
+                                    optionIndex &&
+                                  optionIndex !== question.correctAnswer
+                                ? "bg-red-50 border-red-200"
+                                : ""
                               : ""
-                            : ""
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name={`question-${question.id}`}
-                          value={optionIndex}
-                          checked={selectedAnswers[question.id] === optionIndex}
-                          onChange={() =>
-                            handleAnswerSelect(question.id, optionIndex)
-                          }
-                          disabled={showResults}
-                          className="text-primary-600 focus:ring-primary-500"
-                        />
-                        <span className="ml-3 text-gray-700">{option}</span>
-                        {showResults &&
-                          optionIndex === question.correctAnswer && (
-                            <span className="ml-auto text-green-600 text-sm font-medium">
-                              ✓ Correct
-                            </span>
-                          )}
-                        {showResults &&
-                          selectedAnswers[question.id] === optionIndex &&
-                          optionIndex !== question.correctAnswer && (
-                            <span className="ml-auto text-red-600 text-sm font-medium">
-                              ✗ Incorrect
-                            </span>
-                          )}
-                      </label>
-                    ))}
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name={`question-${question.id}`}
+                            value={optionIndex}
+                            checked={
+                              selectedAnswers[question.id] === optionIndex
+                            }
+                            onChange={() =>
+                              handleAnswerSelect(question.id, optionIndex)
+                            }
+                            disabled={showResults}
+                            className="text-primary-600 focus:ring-primary-500"
+                          />
+                          <span className="ml-3 text-gray-700">{option}</span>
+                          {showResults &&
+                            optionIndex === question.correctAnswer && (
+                              <span className="ml-auto text-green-600 text-sm font-medium">
+                                ✓ Correct
+                              </span>
+                            )}
+                          {showResults &&
+                            selectedAnswers[question.id] === optionIndex &&
+                            optionIndex !== question.correctAnswer && (
+                              <span className="ml-auto text-red-600 text-sm font-medium">
+                                ✗ Incorrect
+                              </span>
+                            )}
+                        </label>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
 
-            <div className="mt-8 flex justify-between">
-              {!showResults ? (
-                <button
-                  onClick={submitAnswers}
-                  disabled={
-                    Object.keys(selectedAnswers).length !==
-                    currentPassage.questions.length
-                  }
-                  className="btn btn-primary"
-                >
-                  Submit Answers
-                </button>
-              ) : (
-                <div className="flex items-center justify-between w-full">
-                  <div className="text-lg font-semibold">
-                    Score: {calculateScore()}/{currentPassage.questions.length}
-                    <span className="text-sm font-normal text-gray-600 ml-2">
-                      (
-                      {Math.round(
-                        (calculateScore() / currentPassage.questions.length) *
-                          100
-                      )}
-                      %)
-                    </span>
-                  </div>
-                  <button onClick={generatePassage} className="btn btn-outline">
-                    Try Another Passage
+              <div className="mt-8 flex justify-between">
+                {!showResults ? (
+                  <button
+                    onClick={submitAnswers}
+                    disabled={
+                      Object.keys(selectedAnswers).length !==
+                      currentPassage.questions.length
+                    }
+                    className="btn btn-primary"
+                  >
+                    Submit Answers
                   </button>
-                </div>
-              )}
+                ) : (
+                  <div className="flex items-center justify-between w-full">
+                    <div className="text-lg font-semibold">
+                      Score: {calculateScore()}/
+                      {currentPassage.questions.length}
+                      <span className="text-sm font-normal text-gray-600 ml-2">
+                        (
+                        {Math.round(
+                          (calculateScore() / currentPassage.questions.length) *
+                            100
+                        )}
+                        %)
+                      </span>
+                    </div>
+                    <button
+                      onClick={generatePassage}
+                      className="btn btn-outline"
+                    >
+                      Try Another Passage
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
