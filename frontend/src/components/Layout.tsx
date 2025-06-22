@@ -6,6 +6,8 @@ import clsx from "clsx";
 import ModelSelector from "./ModelSelector";
 import type { ModelConfig } from "../utils/langchain";
 
+type Section = "dashboard" | "reading" | "writing" | "speaking" | "listening";
+
 interface NavigationItem {
   name: string;
   href: string;
@@ -16,7 +18,7 @@ interface LayoutProps {
   children: ReactNode;
   navigation: NavigationItem[];
   currentSection: string;
-  onSectionChange: (section: string) => void;
+  onSectionChange: (section: Section) => void;
 }
 
 export default function Layout({
@@ -50,7 +52,7 @@ export default function Layout({
                     {navigation.map((item) => (
                       <button
                         key={item.name}
-                        onClick={() => onSectionChange(item.href)}
+                        onClick={() => onSectionChange(item.href as Section)}
                         className={clsx(
                           currentSection === item.href
                             ? "border-primary-500 text-gray-900"
@@ -95,7 +97,7 @@ export default function Layout({
                   <Disclosure.Button
                     key={item.name}
                     as="button"
-                    onClick={() => onSectionChange(item.href)}
+                    onClick={() => onSectionChange(item.href as Section)}
                     className={clsx(
                       currentSection === item.href
                         ? "bg-primary-50 border-primary-500 text-primary-700"
