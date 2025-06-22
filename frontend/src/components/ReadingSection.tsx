@@ -169,21 +169,6 @@ export default function ReadingSection() {
                   </option>
                 ))}
               </select>
-              {showResults && (
-                <div className="text-xs mt-1">
-                  {selectedResponseAnswers[blank.id] === blank.correctAnswer ? (
-                    <span className="text-green-600 font-medium">✓</span>
-                  ) : selectedResponseAnswers[blank.id] !== undefined ? (
-                    <span className="text-red-600 font-medium">
-                      ✗ ({blank.options[blank.correctAnswer]})
-                    </span>
-                  ) : (
-                    <span className="text-gray-600">
-                      ({blank.options[blank.correctAnswer]})
-                    </span>
-                  )}
-                </div>
-              )}
             </span>
           );
         }
