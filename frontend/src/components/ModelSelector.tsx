@@ -265,7 +265,7 @@ export default function ModelSelector({
               <button
                 onClick={initializeModel}
                 disabled={isInitializing || !apiKey.trim()}
-                className="px-4 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 text-sm font-medium text-white btn btn-primary border border-transparent rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isInitializing ? "Initializing..." : "Initialize Model"}
               </button>

@@ -1,9 +1,5 @@
 import { useState } from "react";
-import {
-  SparklesIcon,
-  ClockIcon,
-  ExclamationTriangleIcon,
-} from "@heroicons/react/24/outline";
+import { SparklesIcon, ClockIcon } from "@heroicons/react/24/outline";
 import { generateReadingPassage } from "../utils/api";
 import ModelSelector from "./ModelSelector";
 import type { ModelConfig } from "../utils/langchain";
