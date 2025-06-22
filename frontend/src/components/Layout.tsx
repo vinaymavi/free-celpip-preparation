@@ -1,12 +1,10 @@
-import { useState, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import type { ReactNode } from "react";
 import { Disclosure } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import ModelSelector from "./ModelSelector";
 import type { ModelConfig } from "../utils/langchain";
-
-type Section = "dashboard" | "reading" | "writing" | "speaking" | "listening";
 
 interface NavigationItem {
   name: string;
@@ -18,7 +16,7 @@ interface LayoutProps {
   children: ReactNode;
   navigation: NavigationItem[];
   currentSection: string;
-  onSectionChange: (section: Section) => void;
+  onSectionChange: (section: string) => void;
 }
 
 export default function Layout({
@@ -52,7 +50,7 @@ export default function Layout({
                     {navigation.map((item) => (
                       <button
                         key={item.name}
-                        onClick={() => onSectionChange(item.href as Section)}
+                        onClick={() => onSectionChange(item.href)}
                         className={clsx(
                           currentSection === item.href
                             ? "border-primary-500 text-gray-900"
@@ -97,7 +95,7 @@ export default function Layout({
                   <Disclosure.Button
                     key={item.name}
                     as="button"
-                    onClick={() => onSectionChange(item.href as Section)}
+                    onClick={() => onSectionChange(item.href)}
                     className={clsx(
                       currentSection === item.href
                         ? "bg-primary-50 border-primary-500 text-primary-700"

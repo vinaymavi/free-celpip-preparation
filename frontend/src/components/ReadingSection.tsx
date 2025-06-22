@@ -143,7 +143,7 @@ export default function ReadingSection() {
 
         if (blank) {
           elements.push(
-            <span key={`blank-${blankNumber}`} className="inline-block mx-1">
+            <span key={`blank-${blankNumber}`} className="inline-flex mx-1">
               <select
                 value={selectedResponseAnswers[blank.id] ?? ""}
                 onChange={(e) =>
@@ -169,6 +169,21 @@ export default function ReadingSection() {
                   </option>
                 ))}
               </select>
+              {showResults && (
+                <div className="text-xs mt-1">
+                  {selectedResponseAnswers[blank.id] === blank.correctAnswer ? (
+                    <span className="text-green-600 font-medium">✓</span>
+                  ) : selectedResponseAnswers[blank.id] !== undefined ? (
+                    <span className="text-red-600 font-medium">
+                      ✗ ({blank.options[blank.correctAnswer]})
+                    </span>
+                  ) : (
+                    <span className="text-gray-600">
+                      ({blank.options[blank.correctAnswer]})
+                    </span>
+                  )}
+                </div>
+              )}
             </span>
           );
         }
@@ -338,19 +353,6 @@ export default function ReadingSection() {
               <h3 className="text-lg font-semibold text-gray-900 mb-6">
                 Questions
               </h3>
-              <div className="bg-blue-50 p-4 rounded-lg mb-6">
-                <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-white text-sm font-medium">i</span>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-2">
-                      Using the drop-down menu (↓), choose the best option
-                      according to the information given in the passage.
-                    </h4>
-                  </div>
-                </div>
-              </div>
               <div className="space-y-6 overflow-y-auto flex-1 pr-2">
                 {currentPassage.questions.map((question, index) => (
                   <div key={question.id} className="space-y-3">
