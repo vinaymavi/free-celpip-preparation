@@ -19,7 +19,21 @@ export interface ReadingPassage {
     question: string;
     options: string[];
     correctAnswer: number;
+    questionParts?: {
+      before: string;
+      after: string;
+    };
   }>;
+  responseSection?: {
+    title: string;
+    instruction: string;
+    content: string;
+    blanks: Array<{
+      id: number;
+      options: string[];
+      correctAnswer: number;
+    }>;
+  };
 }
 
 export interface WritingPrompt {

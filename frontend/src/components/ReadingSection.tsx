@@ -14,10 +14,24 @@ interface Question {
   };
 }
 
+// Add new interface for response section
+interface ResponseSection {
+  title: string;
+  instruction: string;
+  content: string;
+  blanks: {
+    id: number;
+    options: string[];
+    correctAnswer: number;
+  }[];
+}
+
 interface ReadingPassage {
   title: string;
   content: string;
   questions: Question[];
+  // Add response section to the passage
+  responseSection?: ResponseSection;
 }
 
 export default function ReadingSection() {
@@ -26,6 +40,9 @@ export default function ReadingSection() {
     null
   );
   const [selectedAnswers, setSelectedAnswers] = useState<{
+    [key: number]: number;
+  }>({});
+  const [selectedResponseAnswers, setSelectedResponseAnswers] = useState<{
     [key: number]: number;
   }>({});
   const [showResults, setShowResults] = useState(false);
@@ -45,6 +62,7 @@ export default function ReadingSection() {
 
       setCurrentPassage(result.data);
       setSelectedAnswers({});
+      setSelectedResponseAnswers({});
       setShowResults(false);
     } catch (error) {
       console.error("Failed to generate passage:", error);
@@ -63,19 +81,116 @@ export default function ReadingSection() {
     }));
   };
 
+  const handleResponseAnswerSelect = (blankId: number, answerIndex: number) => {
+    setSelectedResponseAnswers((prev) => ({
+      ...prev,
+      [blankId]: answerIndex,
+    }));
+  };
+
   const submitAnswers = () => {
     setShowResults(true);
   };
 
   const calculateScore = () => {
-    if (!currentPassage) return 0;
+    if (!currentPassage) return { correct: 0, total: 0 };
     let correct = 0;
+    let total = 0;
+
+    // Score main questions
     currentPassage.questions.forEach((question) => {
+      total++;
       if (selectedAnswers[question.id] === question.correctAnswer) {
         correct++;
       }
     });
-    return correct;
+
+    // Score response section if it exists
+    if (currentPassage.responseSection) {
+      currentPassage.responseSection.blanks.forEach((blank) => {
+        total++;
+        if (selectedResponseAnswers[blank.id] === blank.correctAnswer) {
+          correct++;
+        }
+      });
+    }
+
+    return { correct, total };
+  };
+
+  const renderFillInTheBlanks = (
+    content: string,
+    blanks: ResponseSection["blanks"]
+  ) => {
+    // Split the content by numbered placeholders like {1}, {2}, etc.
+    const parts = content.split(/\{(\d+)\}/);
+    const elements = [];
+
+    for (let i = 0; i < parts.length; i++) {
+      if (i % 2 === 0) {
+        // Regular text parts
+        if (parts[i]) {
+          elements.push(
+            <span key={`text-${i}`} className="text-gray-900">
+              {parts[i]}
+            </span>
+          );
+        }
+      } else {
+        // Blank placeholders
+        const blankNumber = parseInt(parts[i]);
+        const blank = blanks.find((b) => b.id === blankNumber);
+
+        if (blank) {
+          elements.push(
+            <span key={`blank-${blankNumber}`} className="inline-block mx-1">
+              <select
+                value={selectedResponseAnswers[blank.id] ?? ""}
+                onChange={(e) =>
+                  handleResponseAnswerSelect(blank.id, parseInt(e.target.value))
+                }
+                disabled={showResults}
+                className={`inline-block min-w-[150px] px-3 py-1 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                  showResults
+                    ? selectedResponseAnswers[blank.id] === blank.correctAnswer
+                      ? "bg-green-50 border-green-300 text-green-800"
+                      : selectedResponseAnswers[blank.id] !== undefined
+                      ? "bg-red-50 border-red-300 text-red-800"
+                      : "bg-gray-50 border-gray-300"
+                    : selectedResponseAnswers[blank.id] !== undefined
+                    ? "bg-primary-50 border-primary-300"
+                    : "bg-white border-gray-300"
+                }`}
+              >
+                <option value="">↓</option>
+                {blank.options.map((option, optionIndex) => (
+                  <option key={optionIndex} value={optionIndex}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+              {showResults && (
+                <div className="text-xs mt-1">
+                  {selectedResponseAnswers[blank.id] === blank.correctAnswer ? (
+                    <span className="text-green-600 font-medium">✓</span>
+                  ) : selectedResponseAnswers[blank.id] !== undefined ? (
+                    <span className="text-red-600 font-medium">
+                      ✗ ({blank.options[blank.correctAnswer]})
+                    </span>
+                  ) : (
+                    <span className="text-gray-600">
+                      ({blank.options[blank.correctAnswer]})
+                    </span>
+                  )}
+                </div>
+              )}
+            </span>
+          );
+        }
+      }
+    }
+
+    return <div className="leading-relaxed text-gray-900">{elements}</div>;
   };
 
   return (
@@ -370,6 +485,33 @@ export default function ReadingSection() {
                 ))}
               </div>
 
+              {/* Response Section - Fill in the blanks */}
+              {currentPassage.responseSection && (
+                <div className="mt-8 pt-6 border-t border-gray-200">
+                  <div className="bg-blue-50 p-4 rounded-lg mb-6">
+                    <div className="flex items-start space-x-3">
+                      <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-white text-sm font-medium">
+                          i
+                        </span>
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-gray-900 mb-2">
+                          {currentPassage.responseSection.instruction}
+                        </h4>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    {renderFillInTheBlanks(
+                      currentPassage.responseSection.content,
+                      currentPassage.responseSection.blanks
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div className="mt-8 flex justify-between">
                 {!showResults ? (
                   <button onClick={submitAnswers} className="btn btn-primary">
@@ -378,12 +520,11 @@ export default function ReadingSection() {
                 ) : (
                   <div className="flex items-center justify-between w-full">
                     <div className="text-lg font-semibold">
-                      Score: {calculateScore()}/
-                      {currentPassage.questions.length}
+                      Score: {calculateScore().correct}/{calculateScore().total}
                       <span className="text-sm font-normal text-gray-600 ml-2">
                         (
                         {Math.round(
-                          (calculateScore() / currentPassage.questions.length) *
+                          (calculateScore().correct / calculateScore().total) *
                             100
                         )}
                         %)

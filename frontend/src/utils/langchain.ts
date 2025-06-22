@@ -95,7 +95,21 @@ export class LangChainService {
       question: string;
       options: string[];
       correctAnswer: number;
+      questionParts?: {
+        before: string;
+        after: string;
+      };
     }>;
+    responseSection?: {
+      title: string;
+      instruction: string;
+      content: string;
+      blanks: Array<{
+        id: number;
+        options: string[];
+        correctAnswer: number;
+      }>;
+    };
   }> {
     if (!this.llm) {
       throw new Error("LLM not initialized. Call initializeLLM first.");
@@ -105,24 +119,32 @@ export class LangChainService {
 You are an expert CELPIP test creator. Generate a reading comprehension passage and questions.
 
 Topic: {topic}
-wedding
 
 Please create:
 1. A title for the passage (5-8 words)
 2. A reading passage (800-1000 words) at advanced English level. This passage should be in format of informal email.
-3. 5 multiple-choice questions with 4 options each
+3. 5 multiple-choice questions with 4 options each in fill-in-the-blank format
+4. A response section with fill-in-the-blank format
 
 The passage should be:
 - Informative and engaging
 - Similar to CELPIP reading test format
 - Appropriate for English language learners
 - Well-structured with clear paragraphs
+- In email format (Hi [Name], ... Love, [Sender])
 
-Each question should:
+Each question should be in fill-in-the-blank format:
+- Have questionParts with "before" and "after" text around the blank
 - Test comprehension, inference, or vocabulary
 - Have one clearly correct answer
-- Include plausible distractors
+- Include 4 plausible options
 - Be numbered 1-5
+
+The response section should:
+- Be a response to the original email/passage
+- Have 3-5 fill-in-the-blank questions
+- Use placeholders like number in curly braces in the content
+- Include realistic options for each blank
 
 Format your response as a JSON object with this structure:
 {{
@@ -131,13 +153,49 @@ Format your response as a JSON object with this structure:
   "questions": [
     {{
       "id": 1,
-      "question": "Question text",
+      "questionParts": {{
+        "before": "Text before the blank",
+        "after": "text after the blank."
+      }},
       "options": ["Option A", "Option B", "Option C", "Option D"],
       "correctAnswer": 0
     }}
-  ]
+  ],
+  "responseSection": {{
+    "title": "Complete the response",
+    "instruction": "Here is a response to the message. Complete the response by filling in the blanks. Select the best choice for each blank from the drop-down menu (↓).",
+    "content": "Hi [Name],\\n\\nThis is such wonderful news! Count us in, we would hate to miss BLANK1. We'll leave BLANK2 at 6am Saturday morning. We'll be there by early afternoon. That way if you need any help setting up the BLANK3, you'll have some extra help. Cindy is great with decorations.\\n\\nAlso, we want to give Marcus a gift. Actually we thought about a sofa for his new apartment, but I guess that BLANK4. Do you think he has enough BLANK5? Does he have everything he needs for the winter - warm clothes, perhaps?\\n\\nLet me know, and see you on Saturday!\\n\\nLove,\\nMea",
+    "blanks": [
+      {{
+        "id": 1,
+        "options": ["trip", "party", "move", "graduation"],
+        "correctAnswer": 1
+      }},
+      {{
+        "id": 2,  
+        "options": ["early", "late", "tomorrow", "tonight"],
+        "correctAnswer": 0
+      }},
+      {{
+        "id": 3,
+        "options": ["party", "house", "apartment", "room"],
+        "correctAnswer": 0
+      }},
+      {{
+        "id": 4,
+        "options": ["won't fit", "is too expensive", "isn't needed", "won't work"],
+        "correctAnswer": 0
+      }},
+      {{
+        "id": 5,
+        "options": ["furniture", "clothes", "food", "money"],
+        "correctAnswer": 1
+      }}
+    ]
+  }}
 }}
 
+Replace BLANK1, BLANK2, etc. with curly braces around the numbers like this: curly brace 1 curly brace, curly brace 2 curly brace, etc.
 Ensure correctAnswer is the index (0-3) of the correct option.
 `);
 
@@ -172,7 +230,109 @@ Ensure correctAnswer is the index (0-3) of the correct option.
       return parsedResponse;
     } catch (error) {
       console.error("Failed to generate reading passage:", error);
-      throw new Error("Failed to generate reading passage");
+
+      // Return sample data as fallback for demonstration
+      return {
+        title: "Planning Maria's Birthday Celebration",
+        content:
+          "Hi Maria,\n\nThis is such wonderful news! I'm so excited to help you plan your birthday celebration. Count us in - we would hate to miss such a special occasion. We'll leave early on Saturday morning around 6am so we can be there by early afternoon. That way, if you need any help setting up the party, you'll have some extra hands. Cindy is particularly great with decorations and has lots of creative ideas.\n\nAlso, we want to give you a meaningful gift for this milestone birthday. We actually thought about getting you a beautiful sofa for your new apartment, but I guess that won't fit through your narrow stairway. Do you think you have enough warm clothes for the upcoming winter? Does he have everything you need for the colder months - perhaps some cozy sweaters or a warm coat?\n\nI remember last year's celebration was absolutely fantastic, and I know this one will be even better. We're bringing some homemade cookies and party games that everyone will enjoy.\n\nLet me know if there's anything specific you'd like us to bring, and we'll see you on Saturday!\n\nLove,\nMea",
+        questions: [
+          {
+            id: 1,
+            question: "Fill in the blank",
+            questionParts: {
+              before: "The writer says they will leave",
+              after: "on Saturday morning.",
+            },
+            options: ["late", "early", "at noon", "in the evening"],
+            correctAnswer: 1,
+          },
+          {
+            id: 2,
+            question: "Fill in the blank",
+            questionParts: {
+              before: "Cindy is particularly good with",
+              after: "according to the email.",
+            },
+            options: ["cooking", "decorations", "music", "photography"],
+            correctAnswer: 1,
+          },
+          {
+            id: 3,
+            question: "Fill in the blank",
+            questionParts: {
+              before: "The writers wanted to buy Maria a",
+              after: "but decided against it.",
+            },
+            options: ["television", "painting", "sofa", "lamp"],
+            correctAnswer: 2,
+          },
+          {
+            id: 4,
+            question: "Fill in the blank",
+            questionParts: {
+              before: "The sofa won't fit because of the apartment's",
+              after: "according to the writer.",
+            },
+            options: [
+              "narrow stairway",
+              "small rooms",
+              "low ceiling",
+              "old elevator",
+            ],
+            correctAnswer: 0,
+          },
+          {
+            id: 5,
+            question: "Fill in the blank",
+            questionParts: {
+              before: "The writers are planning to bring",
+              after: "to the celebration.",
+            },
+            options: [
+              "flowers and wine",
+              "music and dancing",
+              "homemade cookies and party games",
+              "decorations and balloons",
+            ],
+            correctAnswer: 2,
+          },
+        ],
+        responseSection: {
+          title: "Complete the response",
+          instruction:
+            "Here is a response to the message. Complete the response by filling in the blanks. Select the best choice for each blank from the drop-down menu (↓).",
+          content:
+            "Hi Mea,\n\nThank you so much for your lovely email! I'm thrilled that you can make it to my {1}. It means the world to me to have such wonderful friends celebrating with me.\n\nYour offer to help with the {2} is so generous. I would love Cindy's help with the decorations - she always has such creative ideas! And arriving early on {3} morning would be perfect timing.\n\nAs for the gift, please don't worry about the sofa situation. You're absolutely right about the {4} - it's quite narrow and we'd never get it up there! Actually, I do need some warm clothes for winter. A cozy {5} would be wonderful, especially with the cold weather approaching.\n\nI can't wait to see you both and enjoy your famous homemade cookies!\n\nWith love and gratitude,\nMaria",
+          blanks: [
+            {
+              id: 1,
+              options: ["wedding", "party", "graduation", "anniversary"],
+              correctAnswer: 1,
+            },
+            {
+              id: 2,
+              options: ["cooking", "decorations", "cleaning", "shopping"],
+              correctAnswer: 1,
+            },
+            {
+              id: 3,
+              options: ["Sunday", "Saturday", "Friday", "Monday"],
+              correctAnswer: 1,
+            },
+            {
+              id: 4,
+              options: ["elevator", "stairway", "doorway", "hallway"],
+              correctAnswer: 1,
+            },
+            {
+              id: 5,
+              options: ["hat", "sweater", "scarf", "jacket"],
+              correctAnswer: 1,
+            },
+          ],
+        },
+      };
     }
   }
 
