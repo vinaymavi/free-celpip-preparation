@@ -88,6 +88,10 @@ export default function ModelSelector({
     message?: string;
   }>({ status: "idle" });
 
+  // Track the current initialized model configuration in component state
+  const [currentInitializedConfig, setCurrentInitializedConfig] =
+    useState<ModelConfig | null>(null);
+
   useEffect(() => {
     // Load saved configuration from localStorage
     const savedConfig = loadModelConfig();
@@ -97,24 +101,45 @@ export default function ModelSelector({
       setTemperature(savedConfig.temperature ?? 0.7);
       setApiKey(savedConfig.apiKey);
 
-      // Auto-initialize the model if we have a saved config
-      langChainService
-        .initializeLLM(savedConfig)
-        .then(() => {
-          setInitializationStatus({
-            status: "success",
-            message: `${PROVIDER_INFO[savedConfig.provider].name} ${
-              savedConfig.model
-            } loaded from saved configuration`,
-          });
-          onModelChange?.(savedConfig);
-        })
-        .catch(() => {
-          setInitializationStatus({
-            status: "error",
-            message: "Failed to initialize saved model configuration",
-          });
+      // Check if the service is already initialized with this config
+      const currentServiceConfig = langChainService.getCurrentModel();
+      if (
+        currentServiceConfig &&
+        currentServiceConfig.provider === savedConfig.provider &&
+        currentServiceConfig.model === savedConfig.model &&
+        langChainService.isInitialized()
+      ) {
+        // Service is already initialized with this config
+        setCurrentInitializedConfig(savedConfig);
+        setInitializationStatus({
+          status: "success",
+          message: `${PROVIDER_INFO[savedConfig.provider].name} ${
+            savedConfig.model
+          } loaded from saved configuration`,
         });
+        onModelChange?.(savedConfig);
+      } else {
+        // Auto-initialize the model if we have a saved config
+        langChainService
+          .initializeLLM(savedConfig)
+          .then(() => {
+            setInitializationStatus({
+              status: "success",
+              message: `${PROVIDER_INFO[savedConfig.provider].name} ${
+                savedConfig.model
+              } loaded from saved configuration`,
+            });
+            setCurrentInitializedConfig(savedConfig);
+            onModelChange?.(savedConfig);
+          })
+          .catch(() => {
+            setInitializationStatus({
+              status: "error",
+              message: "Failed to initialize saved model configuration",
+            });
+            setCurrentInitializedConfig(null);
+          });
+      }
     }
   }, [onModelChange]);
 
@@ -130,6 +155,7 @@ export default function ModelSelector({
     setSelectedProvider(provider);
     setSelectedModel(PROVIDER_INFO[provider].models[0]);
     setInitializationStatus({ status: "idle" });
+    setCurrentInitializedConfig(null);
 
     // Clear saved configuration when manually changing providers
     clearModelConfig();
@@ -146,6 +172,7 @@ export default function ModelSelector({
   const handleModelChange = (model: string) => {
     setSelectedModel(model);
     setInitializationStatus({ status: "idle" });
+    setCurrentInitializedConfig(null);
   };
 
   const initializeModel = async () => {
@@ -178,6 +205,7 @@ export default function ModelSelector({
         message: `${PROVIDER_INFO[selectedProvider].name} ${selectedModel} initialized successfully`,
       });
 
+      setCurrentInitializedConfig(config);
       onModelChange?.(config);
     } catch (error) {
       setInitializationStatus({
@@ -185,13 +213,13 @@ export default function ModelSelector({
         message:
           error instanceof Error ? error.message : "Failed to initialize model",
       });
+      setCurrentInitializedConfig(null);
     } finally {
       setIsInitializing(false);
     }
   };
 
-  const currentModel = langChainService.getCurrentModel();
-  const isModelInitialized = langChainService.isInitialized();
+  const isModelInitialized = currentInitializedConfig !== null;
 
   return (
     <div className={`relative ${className}`}>
@@ -201,9 +229,9 @@ export default function ModelSelector({
       >
         <CogIcon className="w-4 h-4 mr-2" />
         <span>
-          {isModelInitialized && currentModel
-            ? `${PROVIDER_INFO[currentModel.provider].name} - ${
-                currentModel.model
+          {isModelInitialized && currentInitializedConfig
+            ? `${PROVIDER_INFO[currentInitializedConfig.provider].name} - ${
+                currentInitializedConfig.model
               }`
             : "Configure LLM"}
         </span>

@@ -238,108 +238,28 @@ Ensure correctAnswer is the index (0-3) of the correct option.
     } catch (error) {
       console.error("Failed to generate reading passage:", error);
 
-      // Return sample data as fallback for demonstration
-      return {
-        title: "Planning Maria's Birthday Celebration",
-        content:
-          "Hi Maria,\n\nThis is such wonderful news! I'm so excited to help you plan your birthday celebration. Count us in - we would hate to miss such a special occasion. We'll leave early on Saturday morning around 6am so we can be there by early afternoon. That way, if you need any help setting up the party, you'll have some extra hands. Cindy is particularly great with decorations and has lots of creative ideas.\n\nAlso, we want to give you a meaningful gift for this milestone birthday. We actually thought about getting you a beautiful sofa for your new apartment, but I guess that won't fit through your narrow stairway. Do you think you have enough warm clothes for the upcoming winter? Does he have everything you need for the colder months - perhaps some cozy sweaters or a warm coat?\n\nI remember last year's celebration was absolutely fantastic, and I know this one will be even better. We're bringing some homemade cookies and party games that everyone will enjoy.\n\nLet me know if there's anything specific you'd like us to bring, and we'll see you on Saturday!\n\nLove,\nMea",
-        questions: [
-          {
-            id: 1,
-            question: "Fill in the blank",
-            questionParts: {
-              before: "The writer says they will leave",
-              after: "on Saturday morning.",
-            },
-            options: ["late", "early", "at noon", "in the evening"],
-            correctAnswer: 1,
-          },
-          {
-            id: 2,
-            question: "Fill in the blank",
-            questionParts: {
-              before: "Cindy is particularly good with",
-              after: "according to the email.",
-            },
-            options: ["cooking", "decorations", "music", "photography"],
-            correctAnswer: 1,
-          },
-          {
-            id: 3,
-            question: "Fill in the blank",
-            questionParts: {
-              before: "The writers wanted to buy Maria a",
-              after: "but decided against it.",
-            },
-            options: ["television", "painting", "sofa", "lamp"],
-            correctAnswer: 2,
-          },
-          {
-            id: 4,
-            question: "Fill in the blank",
-            questionParts: {
-              before: "The sofa won't fit because of the apartment's",
-              after: "according to the writer.",
-            },
-            options: [
-              "narrow stairway",
-              "small rooms",
-              "low ceiling",
-              "old elevator",
-            ],
-            correctAnswer: 0,
-          },
-          {
-            id: 5,
-            question: "Fill in the blank",
-            questionParts: {
-              before: "The writers are planning to bring",
-              after: "to the celebration.",
-            },
-            options: [
-              "flowers and wine",
-              "music and dancing",
-              "homemade cookies and party games",
-              "decorations and balloons",
-            ],
-            correctAnswer: 2,
-          },
-        ],
-        responseSection: {
-          title: "Complete the response",
-          instruction:
-            "Here is a response to the message. Complete the response by filling in the blanks. Select the best choice for each blank from the drop-down menu (↓).",
-          content:
-            "Hi Mea,\n\nThank you so much for your lovely email! I'm thrilled that you can make it to my {1}. It means the world to me to have such wonderful friends celebrating with me.\n\nYour offer to help with the {2} is so generous. I would love Cindy's help with the decorations - she always has such creative ideas! And arriving early on {3} morning would be perfect timing.\n\nAs for the gift, please don't worry about the sofa situation. You're absolutely right about the {4} - it's quite narrow and we'd never get it up there! Actually, I do need some warm clothes for winter. A cozy {5} would be wonderful, especially with the cold weather approaching.\n\nI can't wait to see you both and enjoy your famous homemade cookies!\n\nWith love and gratitude,\nMaria",
-          blanks: [
-            {
-              id: 1,
-              options: ["wedding", "party", "graduation", "anniversary"],
-              correctAnswer: 1,
-            },
-            {
-              id: 2,
-              options: ["cooking", "decorations", "cleaning", "shopping"],
-              correctAnswer: 1,
-            },
-            {
-              id: 3,
-              options: ["Sunday", "Saturday", "Friday", "Monday"],
-              correctAnswer: 1,
-            },
-            {
-              id: 4,
-              options: ["elevator", "stairway", "doorway", "hallway"],
-              correctAnswer: 1,
-            },
-            {
-              id: 5,
-              options: ["hat", "sweater", "scarf", "jacket"],
-              correctAnswer: 1,
-            },
-          ],
-        },
-      };
+      // Create a meaningful error message based on the error type
+      let errorMessage = "Failed to generate reading passage. ";
+
+      if (error instanceof Error) {
+        if (error.message.includes("API key")) {
+          errorMessage += "Please check your API key configuration.";
+        } else if (error.message.includes("rate limit")) {
+          errorMessage += "API rate limit exceeded. Please try again later.";
+        } else if (error.message.includes("JSON")) {
+          errorMessage +=
+            "Unable to process the generated content. Please try again.";
+        } else if (error.message.includes("initialize")) {
+          errorMessage +=
+            "AI model not properly configured. Please select a model first.";
+        } else {
+          errorMessage += `${error.message}`;
+        }
+      } else {
+        errorMessage += "An unexpected error occurred. Please try again.";
+      }
+
+      throw new Error(errorMessage);
     }
   }
 
