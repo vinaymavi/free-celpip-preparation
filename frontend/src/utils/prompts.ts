@@ -75,7 +75,7 @@ The response section should:
 
 IMPORTANT FORMATTING REQUIREMENTS:
 - Use numbered placeholders starting from where the original passage questions ended
-- Each blank should be marked with curly braces around sequential numbers
+- Each blank should be marked with double curly braces around sequential numbers
 - The response should be 200-300 words long
 - Maintain the same level of formality as the original passage
 - Include natural transitions and connective phrases
@@ -113,7 +113,7 @@ Format your response as a JSON object with this structure:
 In above response section responseSection.content is only for reference. generate your own content.
 This response passage should be 200-250 words long and should match the format and tone of the original passage.
 
-Replace numbered blanks with curly braces around sequential numbers starting after the reading questions end.
+Replace numbered blanks with double curly braces around sequential numbers starting after the reading questions end.
 Ensure correctAnswer is the index (0-3) of the correct option.
 Each blank should test different aspects: vocabulary, grammar, context, and reading comprehension.
 
@@ -125,20 +125,75 @@ NOTE: use your knowledge of CELPIP reading test format to generate the passage a
     diagram: ChatPromptTemplate.fromMessages([
       [
         "system",
-        `You are an expert CELPIP test creator. Generate a reading comprehension passage and questions for the "Reading to Apply a Diagram" section.`,
+        `You are an expert CELPIP test creator. Generate a reading comprehension passage and questions for the "Reading to Apply a Diagram" section. This section combines visual information with an email message that has fill-in-the-blank questions.`,
       ],
       [
         "user",
-        `
-
-Topic: {topic}
+        `Topic: {topic}
 
 Please create:
-1. A title for the passage (5-8 words)
-2. A reading passage (300-350 words) describing visual information
-3. 8-9 multiple-choice questions testing diagram interpretation
+1. A title for the email (5-8 words)
+2. A diagram with 4-5 visual elements (transportation, accommodation, services, etc.)
+3. An email message (200-300 words) that references the diagram
+4. 5 fill-in-the-blank questions embedded in the email
 
-Format your response as JSON with title, content, and questions array.`,
+The diagram should contain:
+- 4-5 different options/items with distinctive labels
+- Each item should have 2-3 descriptive properties (price, duration, features, etc.)
+- Properties should be factual and comparable
+- Visual elements should be clearly distinguishable
+
+The email should:
+- Be in informal or semi-formal email format
+- Reference the diagram information throughout
+- Have 5 fill-in-the-blank questions numbered 1-5
+- Use numbered placeholders in double curly braces for blanks
+- Be contextually coherent when completed
+- Test understanding of diagram information
+
+Each blank should:
+- Require information from the diagram to answer correctly
+- Have 4 multiple-choice options
+- Test different skills: comparison, specific details, inference
+- Be challenging but have one clearly correct answer
+
+IMPORTANT FORMATTING REQUIREMENTS:
+- Use numbered placeholders {{1}}, {{2}}, {{3}}, {{4}}, {{5}} for blanks
+- Email should be 200-300 words
+- Include proper email headers (Subject, To, From)
+- Maintain natural flow when blanks are filled
+- Each blank should logically relate to diagram information
+
+Format your response as a JSON object with this structure:
+{{
+  "title": "Email subject line",
+  "diagram": {{
+    "title": "Diagram title",
+    "items": [
+      {{
+        "id": 1,
+        "label": "Item Name (e.g., Train, Bus, Hotel A)",
+        "icon": "🚂", // Use appropriate emoji
+        "properties": [
+          {{"name": "Price", "value": "$200 - return ticket"}},
+          {{"name": "Duration", "value": "4 hr, 25 min"}},
+          {{"name": "Features", "value": "first-class, scenic trip along the coast, free wi-fi internet"}}
+        ]
+      }}
+    ]
+  }},
+  "content": "Email content with numbered blanks {{1}}, {{2}}, etc. embedded naturally in the text flow",
+  "questions": [
+    {{
+      "id": 1,
+      "options": ["option based on diagram", "option based on diagram", "option based on diagram", "option based on diagram"],
+      "correctAnswer": 0
+    }}
+  ]
+}}
+
+Ensure the email content flows naturally and the blanks test comprehension of the diagram information. The diagram items should be realistic and contain specific, comparable details that are referenced in the email blanks.
+        `,
       ],
     ]),
 

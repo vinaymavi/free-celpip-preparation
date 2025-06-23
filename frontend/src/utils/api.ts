@@ -34,6 +34,18 @@ export interface ReadingPassage {
       correctAnswer: number;
     }>;
   };
+  diagram?: {
+    title: string;
+    items: Array<{
+      id: number;
+      label: string;
+      icon: string;
+      properties: Array<{
+        name: string;
+        value: string;
+      }>;
+    }>;
+  };
 }
 
 export interface WritingPrompt {

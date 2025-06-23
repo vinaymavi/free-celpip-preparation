@@ -120,6 +120,18 @@ export class LangChainService {
         correctAnswer: number;
       }>;
     };
+    diagram?: {
+      title: string;
+      items: Array<{
+        id: number;
+        label: string;
+        icon: string;
+        properties: Array<{
+          name: string;
+          value: string;
+        }>;
+      }>;
+    };
   }> {
     if (!this.llm) {
       throw new Error("LLM not initialized. Call initializeLLM first.");
@@ -132,7 +144,7 @@ export class LangChainService {
 
     try {
       const formattedPrompt = await prompt.formatMessages({
-        topic: topic || "a relevant topic for English learners",
+        topic: topic || "",
       });
 
       const response = await this.llm.invoke(formattedPrompt);

@@ -33,6 +33,19 @@ interface ReadingPassage {
   questions: Question[];
   // Add response section to the passage
   responseSection?: ResponseSection;
+  // Add diagram section
+  diagram?: {
+    title: string;
+    items: Array<{
+      id: number;
+      label: string;
+      icon: string;
+      properties: Array<{
+        name: string;
+        value: string;
+      }>;
+    }>;
+  };
 }
 
 export default function ReadingSection() {
@@ -157,21 +170,21 @@ export default function ReadingSection() {
         ];
       case "diagram":
         return [
-          "City Transportation Map",
-          "Library Floor Plan Layout",
-          "Monthly Sales Chart Analysis",
-          "Weather Patterns Graph",
-          "Shopping Mall Directory",
-          "University Campus Map",
-          "Population Growth Statistics",
-          "Energy Consumption Comparison",
-          "Sports Tournament Bracket",
-          "Hospital Emergency Procedures",
-          "Parking Garage Levels",
-          "Museum Exhibition Layout",
-          "Airport Terminal Guide",
-          "Bus Route Schedule",
-          "Office Building Directory",
+          "Transportation Options for Business Trip",
+          "Conference Travel Planning",
+          "University Campus Navigation",
+          "Shopping Mall Directory and Store Locations",
+          "Hotel Booking Comparison Chart",
+          "Flight vs Train vs Bus Comparison",
+          "Apartment Rental Options Comparison",
+          "Restaurant Menu and Pricing Guide",
+          "Library Floor Plan and Services",
+          "Sports Facility Booking Options",
+          "Event Venue Selection Guide",
+          "Internet and Phone Plan Comparison",
+          "Insurance Coverage Options",
+          "Gym Membership Plans",
+          "Course Registration Schedule",
         ];
       case "information":
         return [
@@ -212,6 +225,177 @@ export default function ReadingSection() {
       default:
         return [];
     }
+  };
+
+  const renderDiagramSection = () => {
+    if (!currentPassage?.diagram) return null;
+
+    return (
+      <div className="card">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          {currentPassage.diagram.title}
+        </h3>
+        <div className="space-y-4">
+          {currentPassage.diagram.items.map((item) => (
+            <div
+              key={item.id}
+              className="flex items-start space-x-4 p-4 bg-gray-50 rounded-lg"
+            >
+              <div className="text-4xl flex-shrink-0">{item.icon}</div>
+              <div className="flex-1">
+                <h4 className="font-medium text-gray-900 mb-2">{item.label}</h4>
+                <div className="space-y-1">
+                  {item.properties.map((property, index) => (
+                    <div key={index} className="text-sm text-gray-600">
+                      <span className="font-medium">{property.name}:</span>{" "}
+                      {property.value}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  const renderDiagramEmail = () => {
+    if (!currentPassage || activeSection !== "diagram") return null;
+
+    // Split the content by numbered placeholders like {1}, {2}, etc.
+    const parts = currentPassage.content.split(/\{(\d+)\}/);
+    const elements = [];
+
+    for (let i = 0; i < parts.length; i++) {
+      if (i % 2 === 0) {
+        // Regular text parts
+        if (parts[i]) {
+          elements.push(
+            <span key={`text-${i}`} className="text-gray-900">
+              {parts[i]}
+            </span>
+          );
+        }
+      } else {
+        // Blank placeholders
+        const blankNumber = parseInt(parts[i]);
+        const question = currentPassage.questions.find(
+          (q) => q.id === blankNumber
+        );
+
+        if (question) {
+          elements.push(
+            <span key={`blank-${blankNumber}`} className="inline-flex mx-1">
+              <select
+                value={selectedAnswers[question.id] ?? ""}
+                onChange={(e) =>
+                  handleAnswerSelect(question.id, parseInt(e.target.value))
+                }
+                disabled={showResults}
+                className={`inline-block min-w-[150px] px-3 py-1 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                  showResults
+                    ? selectedAnswers[question.id] === question.correctAnswer
+                      ? "bg-green-50 border-green-300 text-green-800"
+                      : selectedAnswers[question.id] !== undefined
+                      ? "bg-red-50 border-red-300 text-red-800"
+                      : "bg-gray-50 border-gray-300"
+                    : selectedAnswers[question.id] !== undefined
+                    ? "bg-primary-50 border-primary-300"
+                    : "bg-white border-gray-300"
+                }`}
+              >
+                <option value="">↓</option>
+                {question.options.map((option, optionIndex) => (
+                  <option key={optionIndex} value={optionIndex}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+              {showResults && (
+                <div className="text-xs mt-1">
+                  {selectedAnswers[question.id] === question.correctAnswer ? (
+                    <span className="text-green-600 font-medium">✓</span>
+                  ) : selectedAnswers[question.id] !== undefined ? (
+                    <span className="text-red-600 font-medium">
+                      ✗ ({question.options[question.correctAnswer]})
+                    </span>
+                  ) : (
+                    <span className="text-gray-600">
+                      ({question.options[question.correctAnswer]})
+                    </span>
+                  )}
+                </div>
+              )}
+            </span>
+          );
+        }
+      }
+    }
+
+    return (
+      <div className="card">
+        <div className="mb-4">
+          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+            <p className="text-sm text-blue-800 font-medium mb-2">
+              📧 Read the following email message about the diagram on the left.
+              Complete the email by filling in the blanks. Select the best
+              choice for each blank from the drop-down menu (↓).
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-white border border-gray-200 rounded-lg">
+          <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
+            <div className="text-sm text-gray-600 space-y-1">
+              <div>
+                <strong>Subject:</strong> {currentPassage.title}
+              </div>
+              <div>
+                <strong>To:</strong> Janice Wong &lt;jwong@ubc.ca&gt;
+              </div>
+              <div>
+                <strong>From:</strong> Peter Kull &lt;pkull@ubc.ca&gt;
+              </div>
+            </div>
+          </div>
+          <div className="p-4">
+            <div className="leading-relaxed text-gray-900">{elements}</div>
+          </div>
+        </div>
+
+        {/* Submit Button */}
+        <div className="mt-6 flex justify-center">
+          {!showResults ? (
+            <button
+              onClick={submitAnswers}
+              className="btn btn-primary"
+              disabled={Object.keys(selectedAnswers).length === 0}
+            >
+              Submit Answers
+            </button>
+          ) : (
+            <div className="text-center">
+              <div className="text-lg font-medium text-gray-900 mb-2">
+                Score: {calculateScore().correct} / {calculateScore().total}
+              </div>
+              <button
+                onClick={() => {
+                  setCurrentPassage(null);
+                  setShowResults(false);
+                  setSelectedAnswers({});
+                  setSelectedResponseAnswers({});
+                  setError(null);
+                }}
+                className="btn btn-secondary"
+              >
+                Generate New Passage
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
   };
 
   const renderFillInTheBlanks = (
@@ -448,33 +632,112 @@ export default function ReadingSection() {
         </div>
       ) : (
         <div className="space-y-8">
-          <div className="flex flex-col lg:flex-row justify-between items-start space-y-4 lg:space-y-0 lg:space-x-4">
-            <div className="card flex-1 flex flex-col max-h-screen">
-              <div className="prose max-w-none text-gray-700 leading-relaxed overflow-y-auto max-h-[calc(100vh-12rem)] pr-2">
-                {currentPassage.content.split("\n").map((paragraph, index) => (
-                  <p key={index} className="mb-4">
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
-            </div>
+          {activeSection === "diagram" ? (
+            /* Diagram Section Layout */
+            <div className="flex flex-col lg:flex-row justify-between items-start space-y-4 lg:space-y-0 lg:space-x-6">
+              {/* Left Side - Diagram */}
+              <div className="lg:w-5/12">{renderDiagramSection()}</div>
 
-            <div className="card flex-1 flex flex-col max-h-screen">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">
-                Questions
-              </h3>
-              <div className="space-y-6 overflow-y-auto flex-1 pr-2 min-h-[300px]">
-                {currentPassage.questions.map((question, index) => (
-                  <div key={question.id} className="space-y-3">
-                    <div className="flex items-start space-x-3">
-                      <span className="font-medium text-gray-900 mt-1">
-                        {index + 1}.
-                      </span>
-                      <div className="flex-1">
-                        {question.questionParts ? (
-                          <div className="text-gray-900 leading-relaxed">
-                            <span>{question.questionParts.before} </span>
-                            <div className="inline-block relative">
+              {/* Right Side - Email with blanks */}
+              <div className="lg:w-7/12">{renderDiagramEmail()}</div>
+            </div>
+          ) : (
+            /* Other Sections Layout */
+            <div className="flex flex-col lg:flex-row justify-between items-start space-y-4 lg:space-y-0 lg:space-x-4">
+              <div className="card flex-1 flex flex-col max-h-screen">
+                <div className="prose max-w-none text-gray-700 leading-relaxed overflow-y-auto max-h-[calc(100vh-12rem)] pr-2">
+                  {currentPassage.content
+                    .split("\n")
+                    .map((paragraph, index) => (
+                      <p key={index} className="mb-4">
+                        {paragraph}
+                      </p>
+                    ))}
+                </div>
+              </div>
+
+              <div className="card flex-1 flex flex-col max-h-screen">
+                <h3 className="text-lg font-semibold text-gray-900 mb-6">
+                  Questions
+                </h3>
+                <div className="space-y-6 overflow-y-auto flex-1 pr-2 min-h-[300px]">
+                  {currentPassage.questions.map((question, index) => (
+                    <div key={question.id} className="space-y-3">
+                      <div className="flex items-start space-x-3">
+                        <span className="font-medium text-gray-900 mt-1">
+                          {index + 1}.
+                        </span>
+                        <div className="flex-1">
+                          {question.questionParts ? (
+                            <div className="text-gray-900 leading-relaxed">
+                              <span>{question.questionParts.before} </span>
+                              <div className="inline-block relative">
+                                <select
+                                  value={selectedAnswers[question.id] ?? ""}
+                                  onChange={(e) =>
+                                    handleAnswerSelect(
+                                      question.id,
+                                      parseInt(e.target.value)
+                                    )
+                                  }
+                                  disabled={showResults}
+                                  className={`inline-block min-w-[200px] px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                                    showResults
+                                      ? selectedAnswers[question.id] ===
+                                        question.correctAnswer
+                                        ? "bg-green-50 border-green-300 text-green-800"
+                                        : selectedAnswers[question.id] !==
+                                          undefined
+                                        ? "bg-red-50 border-red-300 text-red-800"
+                                        : "bg-gray-50 border-gray-300"
+                                      : selectedAnswers[question.id] !==
+                                        undefined
+                                      ? "bg-primary-50 border-primary-300"
+                                      : "bg-white border-gray-300"
+                                  }`}
+                                >
+                                  <option value="">Choose an option ↓</option>
+                                  {question.options.map(
+                                    (option, optionIndex) => (
+                                      <option
+                                        key={optionIndex}
+                                        value={optionIndex}
+                                      >
+                                        {option}
+                                      </option>
+                                    )
+                                  )}
+                                </select>
+                              </div>
+                              <span> {question.questionParts.after}</span>
+                              {showResults && (
+                                <div className="mt-2 text-sm">
+                                  {selectedAnswers[question.id] ===
+                                  question.correctAnswer ? (
+                                    <span className="text-green-600 font-medium">
+                                      ✓ Correct
+                                    </span>
+                                  ) : selectedAnswers[question.id] !==
+                                    undefined ? (
+                                    <span className="text-red-600 font-medium">
+                                      ✗ Incorrect - Correct answer:{" "}
+                                      {question.options[question.correctAnswer]}
+                                    </span>
+                                  ) : (
+                                    <span className="text-gray-600">
+                                      Not answered - Correct answer:{" "}
+                                      {question.options[question.correctAnswer]}
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            // Fallback for questions without questionParts (original format)
+                            <div>
+                              <h4 className="text-base font-medium text-gray-900 mb-3">
+                                {question.question}
+                              </h4>
                               <select
                                 value={selectedAnswers[question.id] ?? ""}
                                 onChange={(e) =>
@@ -484,160 +747,103 @@ export default function ReadingSection() {
                                   )
                                 }
                                 disabled={showResults}
-                                className={`inline-block min-w-[200px] px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-                                  showResults
-                                    ? selectedAnswers[question.id] ===
-                                      question.correctAnswer
-                                      ? "bg-green-50 border-green-300 text-green-800"
-                                      : selectedAnswers[question.id] !==
-                                        undefined
-                                      ? "bg-red-50 border-red-300 text-red-800"
-                                      : "bg-gray-50 border-gray-300"
-                                    : selectedAnswers[question.id] !== undefined
-                                    ? "bg-primary-50 border-primary-300"
-                                    : "bg-white border-gray-300"
-                                }`}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                               >
-                                <option value="">Choose an option ↓</option>
+                                <option value="">Choose an option</option>
                                 {question.options.map((option, optionIndex) => (
                                   <option key={optionIndex} value={optionIndex}>
                                     {option}
                                   </option>
                                 ))}
                               </select>
+                              {showResults && (
+                                <div className="mt-2 text-sm">
+                                  {selectedAnswers[question.id] ===
+                                  question.correctAnswer ? (
+                                    <span className="text-green-600 font-medium">
+                                      ✓ Correct
+                                    </span>
+                                  ) : selectedAnswers[question.id] !==
+                                    undefined ? (
+                                    <span className="text-red-600 font-medium">
+                                      ✗ Incorrect - Correct answer:{" "}
+                                      {question.options[question.correctAnswer]}
+                                    </span>
+                                  ) : (
+                                    <span className="text-gray-600">
+                                      Not answered - Correct answer:{" "}
+                                      {question.options[question.correctAnswer]}
+                                    </span>
+                                  )}
+                                </div>
+                              )}
                             </div>
-                            <span> {question.questionParts.after}</span>
-                            {showResults && (
-                              <div className="mt-2 text-sm">
-                                {selectedAnswers[question.id] ===
-                                question.correctAnswer ? (
-                                  <span className="text-green-600 font-medium">
-                                    ✓ Correct
-                                  </span>
-                                ) : selectedAnswers[question.id] !==
-                                  undefined ? (
-                                  <span className="text-red-600 font-medium">
-                                    ✗ Incorrect - Correct answer:{" "}
-                                    {question.options[question.correctAnswer]}
-                                  </span>
-                                ) : (
-                                  <span className="text-gray-600">
-                                    Not answered - Correct answer:{" "}
-                                    {question.options[question.correctAnswer]}
-                                  </span>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          // Fallback for questions without questionParts (original format)
-                          <div>
-                            <h4 className="text-base font-medium text-gray-900 mb-3">
-                              {question.question}
-                            </h4>
-                            <select
-                              value={selectedAnswers[question.id] ?? ""}
-                              onChange={(e) =>
-                                handleAnswerSelect(
-                                  question.id,
-                                  parseInt(e.target.value)
-                                )
-                              }
-                              disabled={showResults}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                            >
-                              <option value="">Choose an option</option>
-                              {question.options.map((option, optionIndex) => (
-                                <option key={optionIndex} value={optionIndex}>
-                                  {option}
-                                </option>
-                              ))}
-                            </select>
-                            {showResults && (
-                              <div className="mt-2 text-sm">
-                                {selectedAnswers[question.id] ===
-                                question.correctAnswer ? (
-                                  <span className="text-green-600 font-medium">
-                                    ✓ Correct
-                                  </span>
-                                ) : selectedAnswers[question.id] !==
-                                  undefined ? (
-                                  <span className="text-red-600 font-medium">
-                                    ✗ Incorrect - Correct answer:{" "}
-                                    {question.options[question.correctAnswer]}
-                                  </span>
-                                ) : (
-                                  <span className="text-gray-600">
-                                    Not answered - Correct answer:{" "}
-                                    {question.options[question.correctAnswer]}
-                                  </span>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                {/* Response Section - Fill in the blanks (only for correspondence) */}
-                {currentPassage.responseSection &&
-                  activeSection === "correspondence" && (
-                    <div className="mt-8 pt-6 border-t border-gray-200">
-                      <div className="bg-blue-50 p-4 rounded-lg mb-6">
-                        <div className="flex items-start space-x-3">
-                          <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                            <span className="text-white text-sm font-medium">
-                              i
-                            </span>
-                          </div>
-                          <div>
-                            <h4 className="font-medium text-gray-900 mb-2">
-                              {currentPassage.responseSection.instruction}
-                            </h4>
-                          </div>
+                          )}
                         </div>
                       </div>
+                    </div>
+                  ))}
+                  {/* Response Section - Fill in the blanks (only for correspondence) */}
+                  {currentPassage.responseSection &&
+                    activeSection === "correspondence" && (
+                      <div className="mt-8 pt-6 border-t border-gray-200">
+                        <div className="bg-blue-50 p-4 rounded-lg mb-6">
+                          <div className="flex items-start space-x-3">
+                            <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <span className="text-white text-sm font-medium">
+                                i
+                              </span>
+                            </div>
+                            <div>
+                              <h4 className="font-medium text-gray-900 mb-2">
+                                {currentPassage.responseSection.instruction}
+                              </h4>
+                            </div>
+                          </div>
+                        </div>
 
-                      <div className="space-y-4">
-                        {renderFillInTheBlanks(
-                          currentPassage.responseSection.content,
-                          currentPassage.responseSection.blanks
-                        )}
+                        <div className="space-y-4">
+                          {renderFillInTheBlanks(
+                            currentPassage.responseSection.content,
+                            currentPassage.responseSection.blanks
+                          )}
+                        </div>
                       </div>
+                    )}
+                </div>
+
+                <div className="mt-8 flex justify-between">
+                  {!showResults ? (
+                    <button onClick={submitAnswers} className="btn btn-primary">
+                      Submit Answers
+                    </button>
+                  ) : (
+                    <div className="flex items-center justify-between w-full">
+                      <div className="text-lg font-semibold">
+                        Score: {calculateScore().correct}/
+                        {calculateScore().total}
+                        <span className="text-sm font-normal text-gray-600 ml-2">
+                          (
+                          {Math.round(
+                            (calculateScore().correct /
+                              calculateScore().total) *
+                              100
+                          )}
+                          %)
+                        </span>
+                      </div>
+                      <button
+                        onClick={generatePassage}
+                        className="btn btn-primary"
+                      >
+                        Try Another Passage
+                      </button>
                     </div>
                   )}
-              </div>
-
-              <div className="mt-8 flex justify-between">
-                {!showResults ? (
-                  <button onClick={submitAnswers} className="btn btn-primary">
-                    Submit Answers
-                  </button>
-                ) : (
-                  <div className="flex items-center justify-between w-full">
-                    <div className="text-lg font-semibold">
-                      Score: {calculateScore().correct}/{calculateScore().total}
-                      <span className="text-sm font-normal text-gray-600 ml-2">
-                        (
-                        {Math.round(
-                          (calculateScore().correct / calculateScore().total) *
-                            100
-                        )}
-                        %)
-                      </span>
-                    </div>
-                    <button
-                      onClick={generatePassage}
-                      className="btn btn-primary"
-                    >
-                      Try Another Passage
-                    </button>
-                  </div>
-                )}
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       )}
     </div>
