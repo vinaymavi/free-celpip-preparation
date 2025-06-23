@@ -107,7 +107,8 @@ export async function apiRequest<T>(
 
 // Reading content generation using LangChain
 export async function generateReadingPassage(
-  topic?: string
+  topic?: string,
+  sectionType?: string
 ): Promise<ApiResponse<ReadingPassage>> {
   try {
     if (!langChainService.isInitialized()) {
@@ -116,7 +117,10 @@ export async function generateReadingPassage(
       );
     }
 
-    const data = await langChainService.generateReadingPassage(topic);
+    const data = await langChainService.generateReadingPassage(
+      topic,
+      sectionType
+    );
     return { success: true, data };
   } catch (error) {
     console.error("Failed to generate reading passage:", error);

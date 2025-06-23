@@ -36,6 +36,7 @@ interface ReadingPassage {
 }
 
 export default function ReadingSection() {
+  const [activeSection, setActiveSection] = useState<string>("correspondence");
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentPassage, setCurrentPassage] = useState<ReadingPassage | null>(
     null
@@ -59,7 +60,11 @@ export default function ReadingSection() {
     setShowResults(false);
 
     try {
-      const result = await generateReadingPassage(topic || undefined);
+      // Pass the section type to the API
+      const result = await generateReadingPassage(
+        topic || undefined,
+        activeSection
+      );
 
       if (!result.success || !result.data) {
         throw new Error(result.error || "Failed to generate passage");
@@ -107,8 +112,8 @@ export default function ReadingSection() {
       }
     });
 
-    // Score response section if it exists
-    if (currentPassage.responseSection) {
+    // Score response section if it exists (only for correspondence section)
+    if (currentPassage.responseSection && activeSection === "correspondence") {
       currentPassage.responseSection.blanks.forEach((blank) => {
         total++;
         if (selectedResponseAnswers[blank.id] === blank.correctAnswer) {
@@ -118,6 +123,95 @@ export default function ReadingSection() {
     }
 
     return { correct, total };
+  };
+
+  const getTopicsForSection = (section: string) => {
+    switch (section) {
+      case "correspondence":
+        return [
+          "Birthday Celebration Planning",
+          "Family Wedding Invitation or Update",
+          "Holiday Trip Details or Suggestions",
+          "Dinner at a New Restaurant",
+          "Moving to a New Apartment or City",
+          "Attending a Friend's Graduation Ceremony",
+          "Weekend Getaway or Camping Trip",
+          "Hosting a Surprise Party",
+          "Asking for Help with a School Project",
+          "Thanking a Friend for Their Help",
+          "Inviting Someone to a Cultural Event",
+          "Apologizing for Missing a Meeting or Event",
+          "Describing a Fun Day at the Beach or Park",
+          "Discussing Pets and Pet Care",
+          "Sharing Exciting News (e.g., New Job, Promotion)",
+          "Arranging a Playdate for Children",
+          "Giving Feedback about a Movie or Book",
+          "Catching Up After a Long Time",
+          "Explaining Why You Were Late",
+          "Sending Congratulations on a New Baby",
+          "Sharing Recipes or Cooking Experiences",
+          "Talking About a Family Reunion",
+          "Discussing Summer Plans or Winter Break",
+          "Inviting Friends Over for a Barbecue",
+          "Requesting to Borrow an Item (e.g., bike, tent)",
+        ];
+      case "diagram":
+        return [
+          "City Transportation Map",
+          "Library Floor Plan Layout",
+          "Monthly Sales Chart Analysis",
+          "Weather Patterns Graph",
+          "Shopping Mall Directory",
+          "University Campus Map",
+          "Population Growth Statistics",
+          "Energy Consumption Comparison",
+          "Sports Tournament Bracket",
+          "Hospital Emergency Procedures",
+          "Parking Garage Levels",
+          "Museum Exhibition Layout",
+          "Airport Terminal Guide",
+          "Bus Route Schedule",
+          "Office Building Directory",
+        ];
+      case "information":
+        return [
+          "Climate Change Effects",
+          "Healthy Eating Guidelines",
+          "Canadian Immigration Process",
+          "Renewable Energy Sources",
+          "Digital Privacy Protection",
+          "Mental Health Awareness",
+          "Educational Technology Trends",
+          "Workplace Safety Procedures",
+          "Cultural Diversity Benefits",
+          "Financial Planning Basics",
+          "Environmental Conservation",
+          "Public Health Measures",
+          "Career Development Strategies",
+          "Transportation Innovations",
+          "Community Volunteer Programs",
+        ];
+      case "viewpoints":
+        return [
+          "Remote Work vs Office Work",
+          "Public vs Private Transportation",
+          "Traditional vs Online Education",
+          "City Living vs Suburban Living",
+          "Fast Food vs Home Cooking",
+          "Social Media Benefits and Drawbacks",
+          "Tourism Impact on Local Communities",
+          "Technology in Child Education",
+          "Mandatory Vaccination Policies",
+          "Plastic Bag Bans Effectiveness",
+          "Four-Day Work Week Debate",
+          "Artificial Intelligence in Healthcare",
+          "Minimum Wage Increase Effects",
+          "Electric Cars vs Gas Cars",
+          "Standardized Testing in Schools",
+        ];
+      default:
+        return [];
+    }
   };
 
   const renderFillInTheBlanks = (
@@ -198,7 +292,7 @@ export default function ReadingSection() {
   return (
     <div className="px-4 sm:px-0">
       <div className="mb-8">
-        <div className="flex justify-between items-start">
+        <div className="flex justify-between items-start mb-6">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">
               Reading Comprehension
@@ -219,6 +313,59 @@ export default function ReadingSection() {
             />
           </div>
         </div>
+
+        {/* Section Navigation */}
+        <div className="border-b border-gray-200 mb-6">
+          <nav className="-mb-px flex space-x-8">
+            {[
+              {
+                id: "correspondence",
+                name: "Reading Correspondence",
+                description: "Emails, letters, and messages",
+              },
+              {
+                id: "diagram",
+                name: "Reading to Apply a Diagram",
+                description: "Charts, maps, and visual information",
+              },
+              {
+                id: "information",
+                name: "Reading for Information",
+                description: "Factual passages and details",
+              },
+              {
+                id: "viewpoints",
+                name: "Reading for Viewpoints",
+                description: "Opinions and different perspectives",
+              },
+            ].map((section) => (
+              <button
+                key={section.id}
+                onClick={() => {
+                  setActiveSection(section.id);
+                  setCurrentPassage(null);
+                  setShowResults(false);
+                  setSelectedAnswers({});
+                  setSelectedResponseAnswers({});
+                  setError(null);
+                  setTopic(""); // Reset topic when switching sections
+                }}
+                className={`group relative min-w-0 flex-1 overflow-hidden py-4 px-6 text-center text-sm font-medium hover:bg-gray-50 focus:z-10 ${
+                  activeSection === section.id
+                    ? "border-primary-500 text-primary-600 border-b-2"
+                    : "border-transparent text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                <div className="flex flex-col items-center">
+                  <span className="font-medium">{section.name}</span>
+                  <span className="text-xs text-gray-400 mt-1">
+                    {section.description}
+                  </span>
+                </div>
+              </button>
+            ))}
+          </nav>
+        </div>
       </div>
 
       {!currentPassage || isGenerating ? (
@@ -226,11 +373,24 @@ export default function ReadingSection() {
           <div className="card max-w-md mx-auto">
             <SparklesIcon className="mx-auto h-12 w-12 text-primary-600" />
             <h3 className="mt-4 text-lg font-medium text-gray-900">
-              Generate Reading Passage
+              Generate{" "}
+              {activeSection === "correspondence"
+                ? "Reading Correspondence"
+                : activeSection === "diagram"
+                ? "Reading to Apply a Diagram"
+                : activeSection === "information"
+                ? "Reading for Information"
+                : "Reading for Viewpoints"}{" "}
+              Passage
             </h3>
             <p className="mt-2 text-sm text-gray-600">
-              Configure an AI model and generate a new reading passage with
-              comprehension questions.
+              {activeSection === "correspondence"
+                ? "Generate an email or message with comprehension questions and response section."
+                : activeSection === "diagram"
+                ? "Generate a passage describing visual information with interpretation questions."
+                : activeSection === "information"
+                ? "Generate an informative passage with factual comprehension questions."
+                : "Generate a passage with different viewpoints and opinion-based questions."}
             </p>
 
             {/* Topic Selection */}
@@ -244,81 +404,11 @@ export default function ReadingSection() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
                 <option value="">Select a topic...</option>
-                <option value="Birthday Celebration Planning">
-                  Birthday Celebration Planning
-                </option>
-                <option value="Family Wedding Invitation or Update">
-                  Family Wedding Invitation or Update
-                </option>
-                <option value="Holiday Trip Details or Suggestions">
-                  Holiday Trip Details or Suggestions
-                </option>
-                <option value="Dinner at a New Restaurant">
-                  Dinner at a New Restaurant
-                </option>
-                <option value="Moving to a New Apartment or City">
-                  Moving to a New Apartment or City
-                </option>
-                <option value="Attending a Friend's Graduation Ceremony">
-                  Attending a Friend's Graduation Ceremony
-                </option>
-                <option value="Weekend Getaway or Camping Trip">
-                  Weekend Getaway or Camping Trip
-                </option>
-                <option value="Hosting a Surprise Party">
-                  Hosting a Surprise Party
-                </option>
-                <option value="Asking for Help with a School Project">
-                  Asking for Help with a School Project
-                </option>
-                <option value="Thanking a Friend for Their Help">
-                  Thanking a Friend for Their Help
-                </option>
-                <option value="Inviting Someone to a Cultural Event">
-                  Inviting Someone to a Cultural Event
-                </option>
-                <option value="Apologizing for Missing a Meeting or Event">
-                  Apologizing for Missing a Meeting or Event
-                </option>
-                <option value="Describing a Fun Day at the Beach or Park">
-                  Describing a Fun Day at the Beach or Park
-                </option>
-                <option value="Discussing Pets and Pet Care">
-                  Discussing Pets and Pet Care
-                </option>
-                <option value="Sharing Exciting News (e.g., New Job, Promotion)">
-                  Sharing Exciting News (e.g., New Job, Promotion)
-                </option>
-                <option value="Arranging a Playdate for Children">
-                  Arranging a Playdate for Children
-                </option>
-                <option value="Giving Feedback about a Movie or Book">
-                  Giving Feedback about a Movie or Book
-                </option>
-                <option value="Catching Up After a Long Time">
-                  Catching Up After a Long Time
-                </option>
-                <option value="Explaining Why You Were Late">
-                  Explaining Why You Were Late
-                </option>
-                <option value="Sending Congratulations on a New Baby">
-                  Sending Congratulations on a New Baby
-                </option>
-                <option value="Sharing Recipes or Cooking Experiences">
-                  Sharing Recipes or Cooking Experiences
-                </option>
-                <option value="Talking About a Family Reunion">
-                  Talking About a Family Reunion
-                </option>
-                <option value="Discussing Summer Plans or Winter Break">
-                  Discussing Summer Plans or Winter Break
-                </option>
-                <option value="Inviting Friends Over for a Barbecue">
-                  Inviting Friends Over for a Barbecue
-                </option>
-                <option value="Requesting to Borrow an Item (e.g., bike, tent)">
-                  Requesting to Borrow an Item (e.g., bike, tent)
-                </option>
+                {getTopicsForSection(activeSection).map((topicOption) => (
+                  <option key={topicOption} value={topicOption}>
+                    {topicOption}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -342,7 +432,15 @@ export default function ReadingSection() {
               ) : (
                 <>
                   <SparklesIcon className="w-4 h-4 mr-2" />
-                  Generate Passage
+                  Generate{" "}
+                  {activeSection === "correspondence"
+                    ? "Correspondence"
+                    : activeSection === "diagram"
+                    ? "Diagram"
+                    : activeSection === "information"
+                    ? "Information"
+                    : "Viewpoints"}{" "}
+                  Passage
                 </>
               )}
             </button>
@@ -482,32 +580,33 @@ export default function ReadingSection() {
                     </div>
                   </div>
                 ))}
-                {/* Response Section - Fill in the blanks */}
-                {currentPassage.responseSection && (
-                  <div className="mt-8 pt-6 border-t border-gray-200">
-                    <div className="bg-blue-50 p-4 rounded-lg mb-6">
-                      <div className="flex items-start space-x-3">
-                        <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <span className="text-white text-sm font-medium">
-                            i
-                          </span>
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-gray-900 mb-2">
-                            {currentPassage.responseSection.instruction}
-                          </h4>
+                {/* Response Section - Fill in the blanks (only for correspondence) */}
+                {currentPassage.responseSection &&
+                  activeSection === "correspondence" && (
+                    <div className="mt-8 pt-6 border-t border-gray-200">
+                      <div className="bg-blue-50 p-4 rounded-lg mb-6">
+                        <div className="flex items-start space-x-3">
+                          <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <span className="text-white text-sm font-medium">
+                              i
+                            </span>
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-gray-900 mb-2">
+                              {currentPassage.responseSection.instruction}
+                            </h4>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="space-y-4">
-                      {renderFillInTheBlanks(
-                        currentPassage.responseSection.content,
-                        currentPassage.responseSection.blanks
-                      )}
+                      <div className="space-y-4">
+                        {renderFillInTheBlanks(
+                          currentPassage.responseSection.content,
+                          currentPassage.responseSection.blanks
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
               </div>
 
               <div className="mt-8 flex justify-between">
