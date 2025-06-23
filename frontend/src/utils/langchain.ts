@@ -144,7 +144,7 @@ Each question should be in fill-in-the-blank format:
 
 The response section should:
 - Be a response to the original email/passage
-- Have 5-8 fill-in-the-blank questions numbered sequentially (e.g., 7, 8, 9, 10, 11...)
+- Have 8-10 fill-in-the-blank questions numbered sequentially (e.g., 7, 8, 9, 10, 11...)
 - Be in the same format as the original passage (formal/informal email/letter)
 - Include appropriate greeting and closing matching the original tone
 - Fill-in-the-blank questions should complete contextually appropriate responses
@@ -194,7 +194,7 @@ Format your response as a JSON object with this structure:
 }}
 
 In above response section responseSection.content is only for reference. generate your own content.
-This response passage should be 200-300 words long and should match the format and tone of the original passage.
+This response passage should be 200-250 words long and should match the format and tone of the original passage.
 
 Replace numbered blanks with curly braces around sequential numbers starting after the reading questions end.
 Ensure correctAnswer is the index (0-3) of the correct option.

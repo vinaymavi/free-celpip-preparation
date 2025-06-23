@@ -25,11 +25,15 @@ export default function Timer({
   size = "md",
   className = "",
 }: TimerProps) {
-  const [minutes, setMinutes] = useState(initialMinutes);
-  const [seconds, setSeconds] = useState(initialSeconds);
+  const initialTotalSeconds = initialMinutes * 60 + initialSeconds;
+  const [totalSeconds, setTotalSeconds] = useState(initialTotalSeconds);
   const [isRunning, setIsRunning] = useState(autoStart);
-  const [isCountdown] = useState(initialMinutes > 0 || initialSeconds > 0);
+  const [isCountdown] = useState(initialTotalSeconds > 0);
   const intervalRef = useRef<number | null>(null);
+
+  // Calculate minutes and seconds from totalSeconds
+  const minutes = Math.max(0, Math.floor(Math.abs(totalSeconds) / 60));
+  const seconds = Math.max(0, Math.abs(totalSeconds) % 60);
 
   // Size configurations
   const sizeConfig = {
@@ -60,13 +64,8 @@ export default function Timer({
       intervalRef.current = setInterval(() => {
         if (isCountdown) {
           // Countdown timer
-          setSeconds((prevSeconds) => {
-            if (prevSeconds > 0) {
-              return prevSeconds - 1;
-            } else if (minutes > 0) {
-              setMinutes((prevMinutes) => prevMinutes - 1);
-              return 59;
-            } else {
+          setTotalSeconds((prevTotal) => {
+            if (prevTotal <= 0) {
               // Time's up!
               setIsRunning(false);
               if (onTimeUp) {
@@ -74,16 +73,11 @@ export default function Timer({
               }
               return 0;
             }
+            return prevTotal - 1;
           });
         } else {
           // Stopwatch timer
-          setSeconds((prevSeconds) => {
-            if (prevSeconds >= 59) {
-              setMinutes((prevMinutes) => prevMinutes + 1);
-              return 0;
-            }
-            return prevSeconds + 1;
-          });
+          setTotalSeconds((prevTotal) => prevTotal + 1);
         }
       }, 1000);
     }
@@ -93,7 +87,7 @@ export default function Timer({
         clearInterval(intervalRef.current);
       }
     };
-  }, [isRunning, minutes, isCountdown, onTimeUp]);
+  }, [isRunning, isCountdown, onTimeUp]);
 
   const handlePlayPause = () => {
     setIsRunning(!isRunning);
@@ -102,16 +96,17 @@ export default function Timer({
   const handleStop = () => {
     setIsRunning(false);
     if (isCountdown) {
-      setMinutes(initialMinutes);
-      setSeconds(initialSeconds);
+      setTotalSeconds(initialTotalSeconds);
     } else {
-      setMinutes(0);
-      setSeconds(0);
+      setTotalSeconds(0);
     }
   };
 
   const formatTime = (mins: number, secs: number) => {
-    return `${mins.toString().padStart(2, "0")}:${secs
+    // Ensure we never show negative time
+    const displayMins = Math.max(0, mins);
+    const displaySecs = Math.max(0, secs);
+    return `${displayMins.toString().padStart(2, "0")}:${displaySecs
       .toString()
       .padStart(2, "0")}`;
   };
@@ -119,9 +114,10 @@ export default function Timer({
   const getTimeColor = () => {
     if (!isCountdown) return "text-blue-600";
 
-    const totalSeconds = minutes * 60 + seconds;
-    const initialTotal = initialMinutes * 60 + initialSeconds;
-    const remaining = totalSeconds / initialTotal;
+    // Prevent division by zero and negative values
+    if (initialTotalSeconds <= 0 || totalSeconds < 0) return "text-red-600";
+
+    const remaining = totalSeconds / initialTotalSeconds;
 
     if (remaining > 0.5) return "text-green-600";
     if (remaining > 0.25) return "text-yellow-600";
