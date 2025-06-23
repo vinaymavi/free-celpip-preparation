@@ -18,7 +18,7 @@ export interface ModelConfig {
 
 // Default model configurations
 const DEFAULT_MODELS: Record<LLMProvider, string> = {
-  openai: "o4-mini",
+  openai: "gpt-4.1",
   anthropic: "claude-3-sonnet-20240229",
   google: "gemini-pro",
   cohere: "command-light",
@@ -122,9 +122,9 @@ Topic: {topic}
 
 Please create:
 1. A title for the passage (5-8 words)
-2. A reading passage (800-1000 words) at advanced English level. This passage should be in format of informal email.
+2. A reading passage (600-8000 words) at advanced English level. This passage should be in format of informal email.
 3. 5 multiple-choice questions with 4 options each in fill-in-the-blank format
-4. A response section with fill-in-the-blank format
+4. A response section passage(200-300 words) with fill-in-the-blank format
 
 The passage should be:
 - Informative and engaging
@@ -138,11 +138,18 @@ Each question should be in fill-in-the-blank format:
 - Test comprehension, inference, or vocabulary
 - Have one clearly correct answer
 - Include 4 plausible options
+- Quesion should be coplex like asking about the synonym of the word or the meaning of the phrase etc.
 - Be numbered 1-5
 
 The response section should:
 - Be a response to the original email/passage
-- Have 3-5 fill-in-the-blank questions
+- Have 5-8 fill-in-the-blank questions
+- Be in the same informal email format
+- Include a greeting and closing
+- fill-in-the-blank question are design to complete the response
+- Include a mix of vocabulary and comprehension questions
+- Be realistic and relevant to the passage content
+- Include a response to the original email/passage
 - Use placeholders like number in curly braces in the content
 - Include realistic options for each blank
 
