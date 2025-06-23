@@ -2,7 +2,7 @@ import { ChatOpenAI } from "@langchain/openai";
 import { ChatAnthropic } from "@langchain/anthropic";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { ChatCohere } from "@langchain/cohere";
-import { PromptTemplate } from "@langchain/core/prompts";
+import { PromptTemplate, ChatPromptTemplate } from "@langchain/core/prompts";
 import { BaseLanguageModel } from "@langchain/core/language_models/base";
 import {
   getReadingPromptTemplate,
@@ -125,12 +125,13 @@ export class LangChainService {
       throw new Error("LLM not initialized. Call initializeLLM first.");
     }
 
-    const prompt = PromptTemplate.fromTemplate(
-      getReadingPromptTemplate(sectionType)
-    );
+    const prompt: ChatPromptTemplate<
+      Record<string, unknown>,
+      string
+    > = getReadingPromptTemplate(sectionType);
 
     try {
-      const formattedPrompt = await prompt.format({
+      const formattedPrompt = await prompt.formatMessages({
         topic: topic || "a relevant topic for English learners",
       });
 
