@@ -53,6 +53,10 @@ export default function ReadingSection() {
   const generatePassage = async () => {
     setIsGenerating(true);
     setError(null);
+    setCurrentPassage(null); // Reset to show loading screen
+    setSelectedAnswers({});
+    setSelectedResponseAnswers({});
+    setShowResults(false);
 
     try {
       const result = await generateReadingPassage(topic || undefined);
@@ -62,9 +66,6 @@ export default function ReadingSection() {
       }
 
       setCurrentPassage(result.data);
-      setSelectedAnswers({});
-      setSelectedResponseAnswers({});
-      setShowResults(false);
     } catch (error) {
       console.error("Failed to generate passage:", error);
       setError(
@@ -220,7 +221,7 @@ export default function ReadingSection() {
         </div>
       </div>
 
-      {!currentPassage ? (
+      {!currentPassage || isGenerating ? (
         <div className="text-center">
           <div className="card max-w-md mx-auto">
             <SparklesIcon className="mx-auto h-12 w-12 text-primary-600" />
@@ -529,7 +530,7 @@ export default function ReadingSection() {
                     </div>
                     <button
                       onClick={generatePassage}
-                      className="btn btn-outline"
+                      className="btn btn-primary"
                     >
                       Try Another Passage
                     </button>
