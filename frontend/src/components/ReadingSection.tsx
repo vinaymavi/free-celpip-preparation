@@ -364,7 +364,7 @@ export default function ReadingSection() {
               <h3 className="text-lg font-semibold text-gray-900 mb-6">
                 Questions
               </h3>
-              <div className="space-y-6 overflow-y-auto flex-1 pr-2">
+              <div className="space-y-6 overflow-y-auto flex-1 pr-2 min-h-[300px]">
                 {currentPassage.questions.map((question, index) => (
                   <div key={question.id} className="space-y-3">
                     <div className="flex items-start space-x-3">
@@ -481,34 +481,33 @@ export default function ReadingSection() {
                     </div>
                   </div>
                 ))}
-              </div>
-
-              {/* Response Section - Fill in the blanks */}
-              {currentPassage.responseSection && (
-                <div className="mt-8 pt-6 border-t border-gray-200">
-                  <div className="bg-blue-50 p-4 rounded-lg mb-6">
-                    <div className="flex items-start space-x-3">
-                      <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <span className="text-white text-sm font-medium">
-                          i
-                        </span>
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-gray-900 mb-2">
-                          {currentPassage.responseSection.instruction}
-                        </h4>
+                {/* Response Section - Fill in the blanks */}
+                {currentPassage.responseSection && (
+                  <div className="mt-8 pt-6 border-t border-gray-200">
+                    <div className="bg-blue-50 p-4 rounded-lg mb-6">
+                      <div className="flex items-start space-x-3">
+                        <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <span className="text-white text-sm font-medium">
+                            i
+                          </span>
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-gray-900 mb-2">
+                            {currentPassage.responseSection.instruction}
+                          </h4>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="space-y-4">
-                    {renderFillInTheBlanks(
-                      currentPassage.responseSection.content,
-                      currentPassage.responseSection.blanks
-                    )}
+                    <div className="space-y-4">
+                      {renderFillInTheBlanks(
+                        currentPassage.responseSection.content,
+                        currentPassage.responseSection.blanks
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
 
               <div className="mt-8 flex justify-between">
                 {!showResults ? (

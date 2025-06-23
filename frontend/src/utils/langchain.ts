@@ -122,8 +122,8 @@ Topic: {topic}
 
 Please create:
 1. A title for the passage (5-8 words)
-2. A reading passage (600-8000 words) at advanced English level. This passage should be in format of informal email.
-3. 5 multiple-choice questions with 4 options each in fill-in-the-blank format
+2. A reading passage (400-500 words) at advanced English level. This passage should be in format of informal email.
+3. 7 multiple-choice questions with 4 options each in fill-in-the-blank format
 4. A response section passage(200-300 words) with fill-in-the-blank format
 
 The passage should be:
@@ -138,7 +138,7 @@ Each question should be in fill-in-the-blank format:
 - Test comprehension, inference, or vocabulary
 - Have one clearly correct answer
 - Include 4 plausible options
-- Quesion should be coplex like asking about the synonym of the word or the meaning of the phrase etc.
+- Quesion should be coplex to answer
 - Be numbered 1-5
 
 The response section should:
@@ -175,35 +175,40 @@ Format your response as a JSON object with this structure:
     "blanks": [
       {{
         "id": 1,
-        "options": ["trip", "party", "move", "graduation"],
+        "options": ["option1", "option2", "option3", "option4"],
         "correctAnswer": 1
       }},
       {{
         "id": 2,  
-        "options": ["early", "late", "tomorrow", "tonight"],
+        "options": ["option1", "option2", "option3", "option4"],
         "correctAnswer": 0
       }},
       {{
         "id": 3,
-        "options": ["party", "house", "apartment", "room"],
+        "options": ["option1", "option2", "option3", "option4"],
         "correctAnswer": 0
       }},
       {{
         "id": 4,
-        "options": ["won't fit", "is too expensive", "isn't needed", "won't work"],
+        "options": ["option1", "option2", "option3", "option4"],
         "correctAnswer": 0
       }},
       {{
         "id": 5,
-        "options": ["furniture", "clothes", "food", "money"],
+        "options": ["option1", "option2", "option3", "option4"],
         "correctAnswer": 1
       }}
     ]
   }}
 }}
 
+In above response section responseSection.content is only for reference. generate your own content.
+This response passage should be 200-300 words long and should be in the same informal email format as the passage.
+
 Replace BLANK1, BLANK2, etc. with curly braces around the numbers like this: curly brace 1 curly brace, curly brace 2 curly brace, etc.
 Ensure correctAnswer is the index (0-3) of the correct option.
+
+NOTE: use your knowledge of CELPIP reading test format to generate the passage and questions.
 `);
 
     try {
