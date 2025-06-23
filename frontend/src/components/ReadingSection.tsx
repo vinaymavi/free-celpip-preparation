@@ -45,6 +45,10 @@ interface ReadingPassage {
         value: string;
       }>;
     }>;
+    emailHeader?: {
+      to: string;
+      from: string;
+    };
   };
 }
 
@@ -351,12 +355,17 @@ export default function ReadingSection() {
               <div>
                 <strong>Subject:</strong> {currentPassage.title}
               </div>
-              <div>
-                <strong>To:</strong> Janice Wong &lt;jwong@ubc.ca&gt;
-              </div>
-              <div>
-                <strong>From:</strong> Peter Kull &lt;pkull@ubc.ca&gt;
-              </div>
+              {currentPassage.diagram?.emailHeader?.to && (
+                <div>
+                  <strong>To:</strong> {currentPassage.diagram.emailHeader.to}
+                </div>
+              )}
+              {currentPassage.diagram?.emailHeader?.from && (
+                <div>
+                  <strong>From:</strong>{" "}
+                  {currentPassage.diagram.emailHeader.from}
+                </div>
+              )}
             </div>
           </div>
           <div className="p-4">
