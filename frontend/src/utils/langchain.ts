@@ -4,6 +4,13 @@ import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { ChatCohere } from "@langchain/cohere";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { BaseLanguageModel } from "@langchain/core/language_models/base";
+import {
+  getReadingPromptTemplate,
+  getWritingPromptTemplate,
+  getSpeakingPromptTemplate,
+  getListeningPromptTemplate,
+  getEvaluationPromptTemplate,
+} from "./prompts";
 
 // Supported LLM providers
 export type LLMProvider = "openai" | "anthropic" | "google" | "cohere";
@@ -118,67 +125,9 @@ export class LangChainService {
       throw new Error("LLM not initialized. Call initializeLLM first.");
     }
 
-    const getPromptTemplate = (type: string) => {
-      switch (type) {
-        case "correspondence":
-          return `You are an expert CELPIP test creator. Generate a reading comprehension passage and questions for the "Reading Correspondence" section.
-
-Topic: {topic}
-
-Please create:
-1. A title for the passage (5-8 words)
-2. A reading passage (350-400 words) in email format
-3. 7 multiple-choice questions with fill-in-the-blank format
-4. A response section with fill-in-the-blank format
-
-Format your response as JSON with title, content, questions array, and responseSection object.`;
-
-        case "diagram":
-          return `You are an expert CELPIP test creator. Generate a reading comprehension passage and questions for the "Reading to Apply a Diagram" section.
-
-Topic: {topic}
-
-Please create:
-1. A title for the passage (5-8 words)
-2. A reading passage (300-350 words) describing visual information
-3. 8-9 multiple-choice questions testing diagram interpretation
-
-Format your response as JSON with title, content, and questions array.`;
-
-        case "information":
-          return `You are an expert CELPIP test creator. Generate a reading comprehension passage and questions for the "Reading for Information" section.
-
-Topic: {topic}
-
-Please create:
-1. A title for the passage (5-8 words)
-2. A reading passage (400-450 words) that is informative and factual
-3. 9-10 multiple-choice questions testing comprehension
-
-Format your response as JSON with title, content, and questions array.`;
-
-        case "viewpoints":
-          return `You are an expert CELPIP test creator. Generate a reading comprehension passage and questions for the "Reading for Viewpoints" section.
-
-Topic: {topic}
-
-Please create:
-1. A title for the passage (5-8 words)
-2. A reading passage (450-500 words) presenting different viewpoints
-3. 10-11 multiple-choice questions testing viewpoint understanding
-
-Format your response as JSON with title, content, and questions array.`;
-
-        default:
-          return `You are an expert CELPIP test creator. Generate a reading comprehension passage and questions.
-
-Topic: {topic}
-
-Please create a JSON response with title, content, and questions array.`;
-      }
-    };
-
-    const prompt = PromptTemplate.fromTemplate(getPromptTemplate(sectionType));
+    const prompt = PromptTemplate.fromTemplate(
+      getReadingPromptTemplate(sectionType)
+    );
 
     try {
       const formattedPrompt = await prompt.format({
@@ -251,31 +200,7 @@ Please create a JSON response with title, content, and questions array.`;
       throw new Error("LLM not initialized. Call initializeLLM first.");
     }
 
-    const prompt = PromptTemplate.fromTemplate(`
-You are an expert CELPIP test creator. Generate a writing task for the {type} format.
-
-Create a {type} writing prompt that:
-- Is realistic and relevant to everyday situations
-- Matches CELPIP test standards
-- Is appropriate for intermediate to advanced English learners
-- Provides clear context and requirements
-
-For email prompts: Include a realistic scenario requiring formal or informal communication
-For essay prompts: Present a topic that allows for personal opinion and argumentation
-
-Format your response as a JSON object:
-{{
-  "title": "Brief title for the task",
-  "prompt": "The main writing prompt/scenario",
-  "instructions": ["Instruction 1", "Instruction 2", "Instruction 3"],
-  "timeLimit": {timeLimit},
-  "wordLimit": "{wordLimit}"
-}}
-
-Use these guidelines:
-- Email tasks: 27 minutes, 150-200 words
-- Essay tasks: 26 minutes, 150-200 words
-`);
+    const prompt = PromptTemplate.fromTemplate(getWritingPromptTemplate());
 
     try {
       const timeLimit = type === "email" ? 27 : 26;
@@ -319,33 +244,7 @@ Use these guidelines:
       throw new Error("LLM not initialized. Call initializeLLM first.");
     }
 
-    const prompt = PromptTemplate.fromTemplate(`
-You are an expert CELPIP test creator. Generate a speaking task.
-
-Task type: {taskType}
-
-Create a speaking task that:
-- Is realistic and relevant to everyday Canadian situations
-- Matches CELPIP speaking test format
-- Allows for natural conversation and personal expression
-- Is appropriate for intermediate to advanced English learners
-
-Format your response as a JSON object:
-{{
-  "title": "Brief title for the task",
-  "instructions": "Clear instructions for the speaking task",
-  "situation": "Detailed scenario or context",
-  "timeLimit": "Time allowed for speaking",
-  "preparationTime": "Time allowed for preparation"
-}}
-
-Common CELPIP speaking tasks include:
-- Giving advice
-- Talking about personal experiences
-- Describing situations
-- Making comparisons
-- Expressing opinions
-`);
+    const prompt = PromptTemplate.fromTemplate(getSpeakingPromptTemplate());
 
     try {
       const formattedPrompt = await prompt.format({
@@ -387,38 +286,7 @@ Common CELPIP speaking tasks include:
       throw new Error("LLM not initialized. Call initializeLLM first.");
     }
 
-    const prompt = PromptTemplate.fromTemplate(`
-You are an expert CELPIP test creator. Generate a listening comprehension exercise.
-
-Create:
-1. A realistic dialogue or monologue (200-300 words)
-2. 4-5 comprehension questions with multiple-choice answers
-
-The audio content should:
-- Represent realistic Canadian English conversations
-- Include everyday situations (workplace, community, social)
-- Use natural speech patterns and vocabulary
-- Be at intermediate to advanced level
-
-Questions should test:
-- Main ideas and details
-- Inferences and implications
-- Speaker attitudes and purposes
-
-Format your response as a JSON object:
-{{
-  "title": "Brief title for the listening task",
-  "transcript": "Full transcript of the audio content",
-  "questions": [
-    {{
-      "id": 1,
-      "question": "Question text",
-      "options": ["Option A", "Option B", "Option C", "Option D"],
-      "correctAnswer": 0
-    }}
-  ]
-}}
-`);
+    const prompt = PromptTemplate.fromTemplate(getListeningPromptTemplate());
 
     try {
       const formattedPrompt = await prompt.format({});
@@ -457,35 +325,7 @@ Format your response as a JSON object:
       throw new Error("LLM not initialized. Call initializeLLM first.");
     }
 
-    const prompt = PromptTemplate.fromTemplate(`
-You are an expert CELPIP examiner. Evaluate this {section} response.
-
-User Response:
-{userResponse}
-
-Evaluation Criteria: {criteria}
-
-Provide:
-1. A score out of 12 (CELPIP scale)
-2. Overall feedback
-3. 2-3 key strengths
-4. 2-3 areas for improvement
-
-Consider CELPIP criteria:
-- Content/Ideas
-- Vocabulary
-- Grammar
-- Organization/Coherence
-- Task fulfillment
-
-Format as JSON:
-{{
-  "score": 8,
-  "feedback": "Overall assessment...",
-  "strengths": ["Strength 1", "Strength 2"],
-  "improvements": ["Improvement 1", "Improvement 2"]
-}}
-`);
+    const prompt = PromptTemplate.fromTemplate(getEvaluationPromptTemplate());
 
     try {
       const formattedPrompt = await prompt.format({
