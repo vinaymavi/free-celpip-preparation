@@ -19,11 +19,19 @@ A comprehensive web application for CELPIP (Canadian English Language Proficienc
 - **CELPIP-Aligned**: Content matches official test format and difficulty
 - **Response Evaluation**: AI-powered feedback on your practice responses
 
+### 🧭 Navigation & Routing
+
+- **Client-Side Routing**: Seamless navigation between sections without page reloads
+- **Direct URL Access**: Share or bookmark specific sections (e.g., `/reading`, `/writing`)
+- **Browser Navigation**: Full support for back/forward buttons and browser history
+- **Mobile-Friendly**: Responsive navigation with hamburger menu for mobile devices
+
 ## 🛠 Technology Stack
 
 ### Frontend
 
 - **React 19** with TypeScript
+- **React Router v7** for client-side routing and navigation
 - **Vite** for fast development and building
 - **Tailwind CSS** for modern, responsive styling
 - **Headless UI** for accessible components
