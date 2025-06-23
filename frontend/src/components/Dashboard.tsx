@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import {
   ChartBarIcon,
   BookOpenIcon,
@@ -9,10 +10,11 @@ import {
 type Section = "dashboard" | "reading" | "writing" | "speaking" | "listening";
 
 interface DashboardProps {
-  onSectionSelect: (section: Section) => void;
+  onSectionSelect?: (section: Section) => void;
 }
 
 export default function Dashboard({ onSectionSelect }: DashboardProps) {
+  const navigate = useNavigate();
   const sections: {
     name: string;
     description: string;
@@ -67,7 +69,13 @@ export default function Dashboard({ onSectionSelect }: DashboardProps) {
           <div
             key={section.name}
             className="card hover:shadow-md transition-shadow cursor-pointer"
-            onClick={() => onSectionSelect(section.section)}
+            onClick={() => {
+              if (onSectionSelect) {
+                onSectionSelect(section.section);
+              } else {
+                navigate(`/${section.section}`);
+              }
+            }}
           >
             <div className="flex items-center">
               <div

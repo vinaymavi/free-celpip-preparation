@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   BookOpenIcon,
   PencilIcon,
@@ -6,16 +6,15 @@ import {
   SpeakerWaveIcon,
 } from "@heroicons/react/24/outline";
 import Layout from "./components/Layout";
-import Dashboard from "./components/Dashboard";
-import ReadingSection from "./components/ReadingSection";
-import WritingSection from "./components/WritingSection";
-import SpeakingSection from "./components/SpeakingSection";
-import ListeningSection from "./components/ListeningSection";
 
 type Section = "dashboard" | "reading" | "writing" | "speaking" | "listening";
 
 function App() {
-  const [currentSection, setCurrentSection] = useState<Section>("dashboard");
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Get current section from URL path
+  const currentSection = location.pathname.slice(1) || "dashboard";
 
   const navigation = [
     { name: "Dashboard", href: "dashboard", icon: BookOpenIcon },
@@ -25,28 +24,17 @@ function App() {
     { name: "Listening", href: "listening", icon: SpeakerWaveIcon },
   ];
 
-  const renderSection = () => {
-    switch (currentSection) {
-      case "reading":
-        return <ReadingSection />;
-      case "writing":
-        return <WritingSection />;
-      case "speaking":
-        return <SpeakingSection />;
-      case "listening":
-        return <ListeningSection />;
-      default:
-        return <Dashboard onSectionSelect={setCurrentSection} />;
-    }
+  const handleSectionChange = (section: Section) => {
+    navigate(`/${section}`);
   };
 
   return (
     <Layout
       navigation={navigation}
       currentSection={currentSection}
-      onSectionChange={setCurrentSection}
+      onSectionChange={handleSectionChange}
     >
-      {renderSection()}
+      <Outlet />
     </Layout>
   );
 }

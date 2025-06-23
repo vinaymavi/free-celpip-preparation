@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from "react";
 import type { ReactNode } from "react";
+import { Link } from "react-router-dom";
 import { Disclosure } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
@@ -18,14 +19,13 @@ interface LayoutProps {
   children: ReactNode;
   navigation: NavigationItem[];
   currentSection: string;
-  onSectionChange: (section: Section) => void;
+  onSectionChange?: (section: Section) => void; // Made optional for backwards compatibility
 }
 
 export default function Layout({
   children,
   navigation,
   currentSection,
-  onSectionChange,
 }: LayoutProps) {
   // Keep track of model configuration for child components that need it
   const [, setModelConfig] = useState<ModelConfig | null>(null);
@@ -50,9 +50,9 @@ export default function Layout({
                   </div>
                   <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
                     {navigation.map((item) => (
-                      <button
+                      <Link
                         key={item.name}
-                        onClick={() => onSectionChange(item.href as Section)}
+                        to={`/${item.href}`}
                         className={clsx(
                           currentSection === item.href
                             ? "border-primary-500 text-gray-900"
@@ -62,7 +62,7 @@ export default function Layout({
                       >
                         <item.icon className="w-5 h-5 mr-2" />
                         {item.name}
-                      </button>
+                      </Link>
                     ))}
                   </div>
                 </div>
@@ -96,8 +96,8 @@ export default function Layout({
                 {navigation.map((item) => (
                   <Disclosure.Button
                     key={item.name}
-                    as="button"
-                    onClick={() => onSectionChange(item.href as Section)}
+                    as={Link}
+                    to={`/${item.href}`}
                     className={clsx(
                       currentSection === item.href
                         ? "bg-primary-50 border-primary-500 text-primary-700"
