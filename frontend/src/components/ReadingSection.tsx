@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { SparklesIcon, ClockIcon } from "@heroicons/react/24/outline";
 import { generateReadingPassage } from "../utils/api";
+import Timer from "./Timer";
 
 interface Question {
   id: number;
@@ -205,6 +206,16 @@ export default function ReadingSection() {
               Practice reading passages with multiple-choice questions similar
               to the CELPIP test format.
             </p>
+          </div>
+          <div className="flex-shrink-0">
+            <Timer
+              initialMinutes={11}
+              initialSeconds={0}
+              autoStart={false}
+              size="md"
+              showControls={true}
+              className="bg-white p-3 rounded-lg shadow-sm border border-gray-200"
+            />
           </div>
         </div>
       </div>
