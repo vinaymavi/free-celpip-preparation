@@ -32,8 +32,9 @@ export default function Timer({
   const intervalRef = useRef<number | null>(null);
 
   // Calculate minutes and seconds from totalSeconds
-  const minutes = Math.max(0, Math.floor(Math.abs(totalSeconds) / 60));
-  const seconds = Math.max(0, Math.abs(totalSeconds) % 60);
+  const minutes =
+    Math.floor(Math.abs(totalSeconds) / 60) * (totalSeconds < 0 ? -1 : 1);
+  const seconds = (Math.abs(totalSeconds) % 60) * (totalSeconds < 0 ? -1 : 1);
 
   // Size configurations
   const sizeConfig = {
@@ -65,15 +66,11 @@ export default function Timer({
         if (isCountdown) {
           // Countdown timer
           setTotalSeconds((prevTotal) => {
-            if (prevTotal <= 0) {
-              // Time's up!
-              setIsRunning(false);
-              if (onTimeUp) {
-                onTimeUp();
-              }
-              return 0;
+            if (prevTotal === 0 && onTimeUp) {
+              // Time's up! Call the callback but continue running
+              onTimeUp();
             }
-            return prevTotal - 1;
+            return prevTotal - 1; // Continue counting into negative
           });
         } else {
           // Stopwatch timer
@@ -103,19 +100,24 @@ export default function Timer({
   };
 
   const formatTime = (mins: number, secs: number) => {
-    // Ensure we never show negative time
-    const displayMins = Math.max(0, mins);
-    const displaySecs = Math.max(0, secs);
-    return `${displayMins.toString().padStart(2, "0")}:${displaySecs
+    // Show negative sign for negative time
+    const isNegative = mins < 0 || secs < 0;
+    const displayMins = Math.abs(mins);
+    const displaySecs = Math.abs(secs);
+    const timeString = `${displayMins.toString().padStart(2, "0")}:${displaySecs
       .toString()
       .padStart(2, "0")}`;
+    return isNegative ? `-${timeString}` : timeString;
   };
 
   const getTimeColor = () => {
     if (!isCountdown) return "text-blue-600";
 
-    // Prevent division by zero and negative values
-    if (initialTotalSeconds <= 0 || totalSeconds < 0) return "text-red-600";
+    // Red color for negative time (overtime)
+    if (totalSeconds < 0) return "text-red-600";
+
+    // Prevent division by zero
+    if (initialTotalSeconds <= 0) return "text-red-600";
 
     const remaining = totalSeconds / initialTotalSeconds;
 
