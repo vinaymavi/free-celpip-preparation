@@ -14,6 +14,7 @@ interface TimerProps {
   showControls?: boolean;
   size?: "sm" | "md" | "lg";
   className?: string;
+  sticky?: boolean;
 }
 
 export default function Timer({
@@ -24,12 +25,19 @@ export default function Timer({
   showControls = true,
   size = "md",
   className = "",
+  sticky = true,
 }: TimerProps) {
   const initialTotalSeconds = initialMinutes * 60 + initialSeconds;
   const [totalSeconds, setTotalSeconds] = useState(initialTotalSeconds);
   const [isRunning, setIsRunning] = useState(autoStart);
   const [isCountdown] = useState(initialTotalSeconds > 0);
+  const [isSticky, setIsSticky] = useState(false);
   const intervalRef = useRef<number | null>(null);
+  const timerRef = useRef<HTMLDivElement | null>(null);
+  const originalPositionRef = useRef<{ top: number; left: number } | null>(
+    null
+  );
+  const isStickyRef = useRef(false);
 
   // Calculate minutes and seconds from totalSeconds
   const minutes =
@@ -86,6 +94,61 @@ export default function Timer({
     };
   }, [isRunning, isCountdown, onTimeUp]);
 
+  // Enhanced sticky positioning with scroll detection
+  useEffect(() => {
+    if (!sticky || !timerRef.current) return;
+
+    const timerElement = timerRef.current;
+
+    // Store original position (only once)
+    if (!originalPositionRef.current) {
+      const rect = timerElement.getBoundingClientRect();
+      originalPositionRef.current = {
+        top: rect.top + window.scrollY,
+        left: rect.left + window.scrollX,
+      };
+    }
+
+    const handleScroll = () => {
+      if (!timerElement || !originalPositionRef.current) return;
+
+      const rect = timerElement.getBoundingClientRect();
+      const threshold = 20; // Distance from top of viewport
+
+      // Check if timer is about to scroll out of view
+      const shouldStick = rect.top <= threshold && !isStickyRef.current;
+      const shouldUnstick =
+        window.scrollY < originalPositionRef.current.top - threshold &&
+        isStickyRef.current;
+
+      if (shouldStick) {
+        isStickyRef.current = true;
+        setIsSticky(true);
+      } else if (shouldUnstick) {
+        isStickyRef.current = false;
+        setIsSticky(false);
+      }
+    };
+
+    // Initial check
+    handleScroll();
+
+    // Add scroll listener with throttling for better performance
+    let ticking = false;
+    const throttledScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          handleScroll();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener("scroll", throttledScroll, { passive: true });
+    return () => window.removeEventListener("scroll", throttledScroll);
+  }, [sticky]);
+
   const handlePlayPause = () => {
     setIsRunning(!isRunning);
   };
@@ -128,7 +191,14 @@ export default function Timer({
 
   return (
     <div
-      className={`flex items-center space-x-3 ${config.container} ${className}`}
+      ref={timerRef}
+      className={`flex items-center space-x-3 ${
+        config.container
+      } ${className} ${
+        sticky && isSticky
+          ? "fixed top-4 right-4 z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-3 animate-in slide-in-from-top-2"
+          : ""
+      }`}
     >
       <div className="flex items-center space-x-2">
         <ClockIcon className={`${config.icon} text-gray-500`} />
