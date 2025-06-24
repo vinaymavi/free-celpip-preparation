@@ -61,25 +61,18 @@ Each question should be in fill-in-the-blank format:
 
 The response section should:
 - Be a response to the original email/passage
+- Response should be 200-250 words
 - Have 8-10 fill-in-the-blank questions numbered sequentially (e.g., 7, 8, 9, 10, 11...)
 - Be in the same format as the original passage (formal/informal email/letter)
-- Include appropriate greeting and closing matching the original tone
-- Fill-in-the-blank questions should complete contextually appropriate responses
-- Include a mix of vocabulary, grammar, and comprehension-based blanks
-- Be realistic and relevant to the original passage content
-- Maintain coherent flow and logical progression in the response
 - Use numbered placeholders in curly braces for blanks with sequential numbering
 - Each blank should have 4 contextually appropriate options
-- Options should be challenging but have one clearly correct answer
+- Options should be challenging atlest have 3-6 words each.
+- These options are designed to complete the passge naturally when selected.
 - Blanks should test different language skills: vocabulary choice, grammatical correctness, contextual appropriateness
 
 IMPORTANT FORMATTING REQUIREMENTS:
 - Use numbered placeholders starting from where the original passage questions ended
 - Each blank should be marked with double curly braces around sequential numbers
-- The response should be 200-300 words long
-- Maintain the same level of formality as the original passage
-- Include natural transitions and connective phrases
-- Ensure grammatical correctness throughout
 
 Format your response as a JSON object with this structure:
 {{
@@ -125,7 +118,7 @@ NOTE: use your knowledge of CELPIP reading test format to generate the passage a
     diagram: ChatPromptTemplate.fromMessages([
       [
         "system",
-        `You are an expert CELPIP test creator. Generate a reading comprehension passage and questions for the "Reading to Apply a Diagram" section. This section combines visual information with an email message that has fill-in-the-blank questions.`,
+        `You are an expert CELPIP test creator. Generating question for  "Reading to Apply a Diagram" section targert CLB 8-10. This section combines visual information with an email message that has fill-in-the-blank questions.`,
       ],
       [
         "user",
@@ -133,36 +126,37 @@ NOTE: use your knowledge of CELPIP reading test format to generate the passage a
 
 Please create:
 1. A title for the email (5-8 words)
-2. A diagram with 4-5 visual elements (transportation, accommodation, services, etc.)
-3. An email message (200-300 words) that references the diagram
+2. A diagram with 4-5 visual elements 
+3. An email message (250-300 words) that references the diagram
 4. 5 fill-in-the-blank questions embedded in the email
 
 The diagram should contain:
 - 4-5 different options/items with distinctive labels
-- Each item should have 2-3 descriptive properties (price, duration, features, etc.)
-- Properties should be factual and comparable
+- Create digrams items difficult to compare
+- Each item should have 4-6 descriptive properties (price, duration, features, etc.) without labels
+- Properties should be factual and comparable/non-comparable
 - Visual elements should be clearly distinguishable
+
 
 The email should:
 - Be in informal or semi-formal email format
-- Reference the diagram information throughout
+- Email have good mix of subject and reference the diagram information
+- Design email in a complex way by using indirect references to the diagram items
 - Have 5 fill-in-the-blank questions numbered 1-5
+- Fill-in-the-blank questions reference the diagram informaiton
 - Use numbered placeholders in double curly braces for blanks
-- Be contextually coherent when completed
+- Questions are designed to complete the email naturally when filled
 - Test understanding of diagram information
 
 Each blank should:
 - Require information from the diagram to answer correctly
 - Have 4 multiple-choice options
-- Test different skills: comparison, specific details, inference
-- Be challenging but have one clearly correct answer
+- Optoins should have 3-6 words or phrases with reference to the diagrams
+- Optoins are designed in a way to challange the test taker by using standard options design practices.
+- Test different skills of the test taker
 
 IMPORTANT FORMATTING REQUIREMENTS:
 - Use numbered placeholders {{1}}, {{2}}, {{3}}, {{4}}, {{5}} for blanks
-- Email should be 200-300 words
-- Include proper email headers (Subject, To, From)
-- Maintain natural flow when blanks are filled
-- Each blank should logically relate to diagram information
 
 Format your response as a JSON object with this structure:
 {{
