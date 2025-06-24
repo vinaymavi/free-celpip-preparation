@@ -15,7 +15,7 @@ interface ModelSelectorProps {
 const PROVIDER_INFO = {
   openai: {
     name: "OpenAI",
-    models: ["gpt-4.1", "o4-mini"],
+    models: ["gpt-4.1", "gpt-4.1-mini-2025-04-14"],
     description: "Advanced language models with strong reasoning capabilities",
     envVar: "VITE_OPENAI_API_KEY",
   },
@@ -31,7 +31,7 @@ const PROVIDER_INFO = {
   },
   google: {
     name: "Google",
-    models: ["gemini-pro", "gemini-pro-vision"],
+    models: ["gemini-1.5-flash", "gemini-1.5-pro"],
     description: "Google's latest generative AI models",
     envVar: "VITE_GOOGLE_API_KEY",
   },
@@ -79,7 +79,7 @@ export default function ModelSelector({
   const [isOpen, setIsOpen] = useState(false);
   const [selectedProvider, setSelectedProvider] =
     useState<LLMProvider>("openai");
-  const [selectedModel, setSelectedModel] = useState<string>("gpt-3.5-turbo");
+  const [selectedModel, setSelectedModel] = useState<string>("gpt-4.1");
   const [temperature, setTemperature] = useState(0.7);
   const [apiKey, setApiKey] = useState("");
   const [isInitializing, setIsInitializing] = useState(false);

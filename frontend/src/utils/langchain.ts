@@ -27,7 +27,7 @@ export interface ModelConfig {
 const DEFAULT_MODELS: Record<LLMProvider, string> = {
   openai: "gpt-4.1",
   anthropic: "claude-3-sonnet-20240229",
-  google: "gemini-pro",
+  google: "gemini-1.5-flash",
   cohere: "command-light",
 };
 
