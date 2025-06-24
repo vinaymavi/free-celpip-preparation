@@ -128,12 +128,13 @@ Please create:
 1. A title for the email (5-8 words)
 2. A diagram with 4-5 visual elements 
 3. An email message (250-300 words) that references the diagram
-4. 5 fill-in-the-blank questions embedded in the email
+4. 7 fill-in-the-blank questions embedded in the email
 
 The diagram should contain:
 - 4-5 different options/items with distinctive labels
 - Create digrams items difficult to compare
-- Each item should have 4-6 descriptive properties (price, duration, features, etc.) without labels
+- Each item should have 4-6 descriptive properties
+- Properties lables can be same/different for different items
 - Properties should be factual and comparable/non-comparable
 - Visual elements should be clearly distinguishable
 
@@ -142,7 +143,8 @@ The email should:
 - Be in informal or semi-formal email format
 - Email have good mix of subject and reference the diagram information
 - Design email in a complex way by using indirect references to the diagram items
-- Have 5 fill-in-the-blank questions numbered 1-5
+- Use random order of the items in email
+- Have 7 fill-in-the-blank questions numbered 1-7
 - Fill-in-the-blank questions reference the diagram informaiton
 - Use numbered placeholders in double curly braces for blanks
 - Questions are designed to complete the email naturally when filled
@@ -152,7 +154,7 @@ Each blank should:
 - Require information from the diagram to answer correctly
 - Have 4 multiple-choice options
 - Optoins should have 3-6 words or phrases with reference to the diagrams
-- Optoins are designed in a way to challange the test taker by using standard options design practices.
+- Optoins are designed in a way to challange the test taker by using standard design practices.
 - Test different skills of the test taker
 
 IMPORTANT FORMATTING REQUIREMENTS:
