@@ -207,6 +207,11 @@ export default function ReadingSection() {
           "Career Development Strategies",
           "Transportation Innovations",
           "Community Volunteer Programs",
+          "Canadian Healthcare System",
+          "Sustainable Urban Development",
+          "Internet Security and Cybersafety",
+          "Canadian Economic Trends",
+          "Biodiversity and Wildlife Protection",
         ];
       case "viewpoints":
         return [
