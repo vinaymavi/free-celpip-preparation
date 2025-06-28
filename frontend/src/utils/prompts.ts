@@ -196,7 +196,7 @@ Ensure the email content flows naturally and the blanks test comprehension of th
     information: ChatPromptTemplate.fromMessages([
       [
         "system",
-        `You are an expert CELPIP test creator. Generate a reading comprehension passage and questions for the "Reading for Information" section.`,
+        `You are an expert CELPIP test creator. Generate a reading comprehension passage and questions for the "Reading for Information" section targeting CLB 8-10 level.`,
       ],
       [
         "user",
@@ -204,10 +204,57 @@ Ensure the email content flows naturally and the blanks test comprehension of th
 
 Please create:
 1. A title for the passage (5-8 words)
-2. A reading passage (400-450 words) that is informative and factual
-3. 9-10 multiple-choice questions testing comprehension
+2. A reading passage (400-450 words) that is informative, factual, and educational
+3. 9-10 multiple-choice questions testing different reading comprehension skills
 
-Format your response as JSON with title, content, and questions array.`,
+The passage should be:
+- Informative and factual, presenting clear information about the topic
+- Written at CLB 8-10 level (intermediate to advanced)
+- Well-structured with clear paragraphs and logical flow
+- Educational and engaging for test-takers
+- Similar to articles found in newspapers, magazines, or educational materials
+- Include specific facts, statistics, examples, or explanations
+- Avoid overly technical jargon while maintaining sophistication
+
+Each question should:
+- Test different reading skills: main idea, supporting details, inference, vocabulary in context, author's purpose
+- Have 4 multiple-choice options (A, B, C, D)
+- Have one clearly correct answer
+- Include plausible distractors that require careful reading
+- Be challenging but fair for CLB 8-10 level
+- Avoid questions that can be answered with common sense alone
+- Reference specific parts of the passage without direct quotation
+- Be numbered 1-10
+
+Question types should include:
+- Main idea questions (What is the main purpose/theme of the passage?)
+- Detail questions (According to the passage, what/when/where/who...)
+- Inference questions (The author suggests/implies that...)
+- Vocabulary questions (In this context, the word X means...)
+- Purpose/tone questions (The author's tone can be described as...)
+
+Format your response as a JSON object with this structure:
+{{
+  "title": "Informative title here",
+  "content": "Your passage here with proper paragraph breaks using \\n\\n",
+  "questions": [
+    {{
+      "id": 1,
+      "question": "Complete question text with proper grammar and punctuation",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "correctAnswer": 0
+    }}
+  ]
+}}
+
+Ensure:
+- correctAnswer is the index (0-3) of the correct option
+- All questions are clearly written and unambiguous
+- Options are roughly similar in length and structure
+- The passage provides enough information to answer all questions
+- Questions progress from easier (main idea) to more challenging (inference, analysis)
+
+NOTE: Use your knowledge of CELPIP Reading for Information test format to create authentic, high-quality content that accurately reflects the actual exam standards.`,
       ],
     ]),
 
