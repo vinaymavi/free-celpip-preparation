@@ -207,6 +207,11 @@ export default function ReadingSection() {
           "Career Development Strategies",
           "Transportation Innovations",
           "Community Volunteer Programs",
+          "Canadian Healthcare System",
+          "Sustainable Urban Development",
+          "Internet Security and Cybersafety",
+          "Canadian Economic Trends",
+          "Biodiversity and Wildlife Protection",
         ];
       case "viewpoints":
         return [
@@ -654,6 +659,10 @@ export default function ReadingSection() {
             /* Other Sections Layout */
             <div className="flex flex-col lg:flex-row justify-between items-start space-y-4 lg:space-y-0 lg:space-x-4">
               <div className="card flex-1 flex flex-col max-h-screen">
+                {/* Title for the passage */}
+                <h2 className="text-xl font-bold text-gray-900 mb-4 border-b border-gray-200 pb-2">
+                  {currentPassage.title}
+                </h2>
                 <div className="prose max-w-none text-gray-700 leading-relaxed overflow-y-auto max-h-[calc(100vh-12rem)] pr-2">
                   {currentPassage.content
                     .split("\n")
@@ -669,6 +678,13 @@ export default function ReadingSection() {
                 <h3 className="text-lg font-semibold text-gray-900 mb-6">
                   Questions
                 </h3>
+                {activeSection === "information" && (
+                  <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-sm font-medium text-blue-900">
+                      Decide which paragraph, A to D, has the information given in each statement below. Select E if the information is not given in any of the paragraphs.
+                    </p>
+                  </div>
+                )}
                 <div className="space-y-6 overflow-y-auto flex-1 pr-2 min-h-[300px]">
                   {currentPassage.questions.map((question, index) => (
                     <div key={question.id} className="space-y-3">
@@ -756,7 +772,17 @@ export default function ReadingSection() {
                                   )
                                 }
                                 disabled={showResults}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                                  showResults
+                                    ? selectedAnswers[question.id] === question.correctAnswer
+                                      ? "bg-green-50 border-green-300 text-green-800"
+                                      : selectedAnswers[question.id] !== undefined
+                                      ? "bg-red-50 border-red-300 text-red-800"
+                                      : "bg-gray-50 border-gray-300"
+                                    : selectedAnswers[question.id] !== undefined
+                                    ? "bg-primary-50 border-primary-300"
+                                    : "bg-white border-gray-300"
+                                }`}
                               >
                                 <option value="">Choose an option</option>
                                 {question.options.map((option, optionIndex) => (

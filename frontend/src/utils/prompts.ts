@@ -196,18 +196,68 @@ Ensure the email content flows naturally and the blanks test comprehension of th
     information: ChatPromptTemplate.fromMessages([
       [
         "system",
-        `You are an expert CELPIP test creator. Generate a reading comprehension passage and questions for the "Reading for Information" section.`,
+        `You are an expert CELPIP test creator. Generate content for the "Reading for Information" section (Part 3) which tests the ability to identify newly-learned information that has been rephrased. This section requires matching statements to specific paragraphs.`,
       ],
       [
         "user",
         `Topic: {topic}
 
-Please create:
-1. A title for the passage (5-8 words)
-2. A reading passage (400-450 words) that is informative and factual
-3. 9-10 multiple-choice questions testing comprehension
+Create CELPIP Part 3 Reading for Information content following this exact format:
 
-Format your response as JSON with title, content, and questions array.`,
+1. A title for the passage (5-8 words)
+2. A reading passage (400-450 words) divided into exactly 4 paragraphs labeled A, B, C, D
+3. 6-8 statement-matching questions
+
+PASSAGE REQUIREMENTS:
+- Must be exactly 4 paragraphs labeled A, B, C, D
+- Each paragraph should be 100-115 words
+- Written at CLB 8-10 level (intermediate to advanced)
+- Present factual, educational information about the topic
+- Each paragraph should contain distinct, specific information
+- Include facts, statistics, examples, and detailed explanations
+- Information should be dense enough to test precise reading skills
+
+QUESTION REQUIREMENTS:
+- Each question presents a statement about information from the passage
+- Statements should REPHRASE information from the paragraphs (not quote directly)
+- Test ability to recognize information presented in a "completely different way"
+- Some statements should be inferable from the text
+- Include 1-2 statements where the information is NOT given in any paragraph
+- Each question has 5 options: A, B, C, D, E
+  - A, B, C, D correspond to paragraphs
+  - E means "Information not given in any paragraph"
+
+QUESTION FORMAT:
+Each question should contain ONLY the statement to be matched. Do NOT include the instruction text "Decide which paragraph..." in individual questions as this will be displayed as a section header.
+
+EXAMPLE TYPES OF STATEMENTS:
+- Rephrased facts from specific paragraphs
+- Cause-and-effect relationships mentioned in the text
+- Statistical information presented differently
+- Benefits/drawbacks mentioned but reworded
+- Process steps described in alternative phrasing
+- Comparative information restated
+
+Format your response as JSON:
+{{
+  "title": "Title here",
+  "content": "A. [First paragraph content here]\\n\\nB. [Second paragraph content here]\\n\\nC. [Third paragraph content here]\\n\\nD. [Fourth paragraph content here]",
+  "questions": [
+    {{
+      "id": 1,
+      "question": "[Statement to be matched]",
+      "options": ["A", "B", "C", "D", "E"],
+      "correctAnswer": 0
+    }}
+  ]
+}}
+
+IMPORTANT:
+- Each paragraph must be clearly labeled with A., B., C., D. at the start
+- Statements should require careful reading and cannot be answered through common sense alone
+- Include variety: some statements match paragraph A, some B, some C, some D, and 1-2 should be E (not given)
+- Focus on testing information identification and rephrasing recognition skills
+- Ensure statements are challenging but fair for CLB 8-10 level`,
       ],
     ]),
 
