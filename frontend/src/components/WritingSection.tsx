@@ -50,7 +50,7 @@ Write an email to the hotel manager expressing your dissatisfaction with your re
         essay: {
           type: "essay" as const,
           title: "Technology and Education",
-          prompt: `Some people believe that technology has greatly improved education by making learning more accessible and interactive. Others argue that too much reliance on technology in education has negative effects on students\' social skills and critical thinking abilities.
+          prompt: `Some people believe that technology has greatly improved education by making learning more accessible and interactive. Others argue that too much reliance on technology in education has negative effects on students' social skills and critical thinking abilities.
 
 Do you think technology has had a positive or negative impact on education? Give reasons and examples to support your opinion.
 
