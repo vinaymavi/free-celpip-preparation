@@ -196,65 +196,70 @@ Ensure the email content flows naturally and the blanks test comprehension of th
     information: ChatPromptTemplate.fromMessages([
       [
         "system",
-        `You are an expert CELPIP test creator. Generate a reading comprehension passage and questions for the "Reading for Information" section targeting CLB 8-10 level.`,
+        `You are an expert CELPIP test creator. Generate content for the "Reading for Information" section (Part 3) which tests the ability to identify newly-learned information that has been rephrased. This section requires matching statements to specific paragraphs.`,
       ],
       [
         "user",
         `Topic: {topic}
 
-Please create:
+Create CELPIP Part 3 Reading for Information content following this exact format:
+
 1. A title for the passage (5-8 words)
-2. A reading passage (400-450 words) that is informative, factual, and educational
-3. 9-10 multiple-choice questions testing different reading comprehension skills
+2. A reading passage (400-450 words) divided into exactly 4 paragraphs labeled A, B, C, D
+3. 6-8 statement-matching questions
 
-The passage should be:
-- Informative and factual, presenting clear information about the topic
+PASSAGE REQUIREMENTS:
+- Must be exactly 4 paragraphs labeled A, B, C, D
+- Each paragraph should be 100-115 words
 - Written at CLB 8-10 level (intermediate to advanced)
-- Well-structured with clear paragraphs and logical flow
-- Educational and engaging for test-takers
-- Similar to articles found in newspapers, magazines, or educational materials
-- Include specific facts, statistics, examples, or explanations
-- Avoid overly technical jargon while maintaining sophistication
+- Present factual, educational information about the topic
+- Each paragraph should contain distinct, specific information
+- Include facts, statistics, examples, and detailed explanations
+- Information should be dense enough to test precise reading skills
 
-Each question should:
-- Test different reading skills: main idea, supporting details, inference, vocabulary in context, author's purpose
-- Have 4 multiple-choice options (A, B, C, D)
-- Have one clearly correct answer
-- Include plausible distractors that require careful reading
-- Be challenging but fair for CLB 8-10 level
-- Avoid questions that can be answered with common sense alone
-- Reference specific parts of the passage without direct quotation
-- Be numbered 1-10
+QUESTION REQUIREMENTS:
+- Each question presents a statement about information from the passage
+- Statements should REPHRASE information from the paragraphs (not quote directly)
+- Test ability to recognize information presented in a "completely different way"
+- Some statements should be inferable from the text
+- Include 1-2 statements where the information is NOT given in any paragraph
+- Each question has 5 options: A, B, C, D, E
+  - A, B, C, D correspond to paragraphs
+  - E means "Information not given in any paragraph"
 
-Question types should include:
-- Main idea questions (What is the main purpose/theme of the passage?)
-- Detail questions (According to the passage, what/when/where/who...)
-- Inference questions (The author suggests/implies that...)
-- Vocabulary questions (In this context, the word X means...)
-- Purpose/tone questions (The author's tone can be described as...)
+QUESTION FORMAT:
+Each question should start with: "Decide which paragraph, A to D, has the information given in the statement below. Select E if the information is not given in any of the paragraphs."
 
-Format your response as a JSON object with this structure:
+Then present the statement to be matched.
+
+EXAMPLE TYPES OF STATEMENTS:
+- Rephrased facts from specific paragraphs
+- Cause-and-effect relationships mentioned in the text
+- Statistical information presented differently
+- Benefits/drawbacks mentioned but reworded
+- Process steps described in alternative phrasing
+- Comparative information restated
+
+Format your response as JSON:
 {{
-  "title": "Informative title here",
-  "content": "Your passage here with proper paragraph breaks using \\n\\n",
+  "title": "Title here",
+  "content": "A. [First paragraph content here]\\n\\nB. [Second paragraph content here]\\n\\nC. [Third paragraph content here]\\n\\nD. [Fourth paragraph content here]",
   "questions": [
     {{
       "id": 1,
-      "question": "Complete question text with proper grammar and punctuation",
-      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "question": "Decide which paragraph, A to D, has the information given in the statement below. Select E if the information is not given in any of the paragraphs.\\n\\n[Statement to be matched]",
+      "options": ["A", "B", "C", "D", "E"],
       "correctAnswer": 0
     }}
   ]
 }}
 
-Ensure:
-- correctAnswer is the index (0-3) of the correct option
-- All questions are clearly written and unambiguous
-- Options are roughly similar in length and structure
-- The passage provides enough information to answer all questions
-- Questions progress from easier (main idea) to more challenging (inference, analysis)
-
-NOTE: Use your knowledge of CELPIP Reading for Information test format to create authentic, high-quality content that accurately reflects the actual exam standards.`,
+IMPORTANT:
+- Each paragraph must be clearly labeled with A., B., C., D. at the start
+- Statements should require careful reading and cannot be answered through common sense alone
+- Include variety: some statements match paragraph A, some B, some C, some D, and 1-2 should be E (not given)
+- Focus on testing information identification and rephrasing recognition skills
+- Ensure statements are challenging but fair for CLB 8-10 level`,
       ],
     ]),
 
