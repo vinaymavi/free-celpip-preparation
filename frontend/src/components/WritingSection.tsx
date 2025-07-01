@@ -4,6 +4,7 @@ import {
   ClockIcon,
   DocumentTextIcon,
 } from "@heroicons/react/24/outline";
+import Timer from "./Timer";
 
 interface WritingPrompt {
   type: "email" | "essay";
@@ -19,8 +20,7 @@ export default function WritingSection() {
     null
   );
   const [userResponse, setUserResponse] = useState("");
-  const [timeLeft, setTimeLeft] = useState<number | null>(null);
-  const [isTimerActive, setIsTimerActive] = useState(false);
+  const [timerKey, setTimerKey] = useState(0); // Key to reset timer when switching tasks
 
   const generatePrompt = async (type: "email" | "essay") => {
     setIsGenerating(true);
@@ -73,30 +73,9 @@ Write an essay responding to this question. In your essay, you should:
 
       setCurrentPrompt(samplePrompts[type]);
       setUserResponse("");
-      setTimeLeft(samplePrompts[type].timeLimit * 60); // Convert to seconds
-      setIsTimerActive(false);
+      setTimerKey(prev => prev + 1); // Reset timer when switching tasks
       setIsGenerating(false);
     }, 1500);
-  };
-
-  const startTimer = () => {
-    setIsTimerActive(true);
-    const interval = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev === null || prev <= 1) {
-          setIsTimerActive(false);
-          clearInterval(interval);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  };
-
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
 
   const wordCount = userResponse
@@ -112,12 +91,25 @@ Write an essay responding to this question. In your essay, you should:
 
   return (
     <div className="px-4 sm:px-0">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Writing Section</h1>
-        <p className="mt-2 text-lg text-gray-600">
-          Practice writing tasks including emails and essays similar to the
-          CELPIP test format.
-        </p>
+      <div className="mb-8 flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Writing Section</h1>
+          <p className="mt-2 text-lg text-gray-600">
+            Practice writing tasks including emails and essays similar to the
+            CELPIP test format.
+          </p>
+        </div>
+        <div className="flex-shrink-0">
+          <Timer
+            key={timerKey}
+            initialMinutes={currentPrompt?.timeLimit || 54}
+            initialSeconds={0}
+            autoStart={false}
+            size="md"
+            showControls={true}
+            className="bg-white p-3 rounded-lg shadow-sm border border-gray-200"
+          />
+        </div>
       </div>
 
       {!currentPrompt ? (
@@ -180,29 +172,10 @@ Write an essay responding to this question. In your essay, you should:
       ) : (
         <div className="space-y-6">
           <div className="card">
-            <div className="flex justify-between items-start mb-4">
+            <div className="mb-4">
               <h2 className="text-xl font-semibold text-gray-900">
                 {currentPrompt.title}
               </h2>
-              <div className="flex items-center space-x-4">
-                {timeLeft !== null && (
-                  <div
-                    className={`text-lg font-mono ${
-                      timeLeft < 300 ? "text-red-600" : "text-gray-600"
-                    }`}
-                  >
-                    {formatTime(timeLeft)}
-                  </div>
-                )}
-                {!isTimerActive && timeLeft !== null && timeLeft > 0 && (
-                  <button
-                    onClick={startTimer}
-                    className="btn btn-outline btn-sm"
-                  >
-                    Start Timer
-                  </button>
-                )}
-              </div>
             </div>
 
             <div className="prose max-w-none text-gray-700 mb-6">
@@ -239,7 +212,6 @@ Write an essay responding to this question. In your essay, you should:
               onChange={(e) => setUserResponse(e.target.value)}
               placeholder={`Start writing your ${currentPrompt.type} here...`}
               className="textarea h-96"
-              disabled={timeLeft === 0}
             />
 
             <div className="mt-6 flex justify-between">
@@ -251,7 +223,7 @@ Write an essay responding to this question. In your essay, you should:
               </button>
               <button
                 onClick={submitResponse}
-                disabled={wordCount < 50 || timeLeft === 0}
+                disabled={wordCount < 50}
                 className="btn btn-primary"
               >
                 Submit Response

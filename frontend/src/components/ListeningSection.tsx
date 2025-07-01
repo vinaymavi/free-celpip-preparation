@@ -6,6 +6,7 @@ import {
   PlayIcon,
   PauseIcon,
 } from "@heroicons/react/24/outline";
+import Timer from "./Timer";
 
 interface Question {
   id: number;
@@ -224,12 +225,24 @@ Mike: Great! I'll see you on Saturday then. Thanks for inviting me - it'll be a 
 
   return (
     <div className="px-4 sm:px-0">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Listening Section</h1>
-        <p className="mt-2 text-lg text-gray-600">
-          Practice listening to audio clips and answering comprehension
-          questions.
-        </p>
+      <div className="mb-8 flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Listening Section</h1>
+          <p className="mt-2 text-lg text-gray-600">
+            Practice listening to audio clips and answering comprehension
+            questions.
+          </p>
+        </div>
+        <div className="flex-shrink-0">
+          <Timer
+            initialMinutes={47}
+            initialSeconds={0}
+            autoStart={false}
+            size="md"
+            showControls={true}
+            className="bg-white p-3 rounded-lg shadow-sm border border-gray-200"
+          />
+        </div>
       </div>
 
       {!currentTask ? (
