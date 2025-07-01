@@ -94,6 +94,11 @@ export default function Timer({
     };
   }, [isRunning, isCountdown, onTimeUp]);
 
+  // Start or stop timer when autoStart prop changes
+  useEffect(() => {
+    setIsRunning(autoStart);
+  }, [autoStart]);
+
   // Enhanced sticky positioning with scroll detection
   useEffect(() => {
     if (!sticky || !timerRef.current) return;

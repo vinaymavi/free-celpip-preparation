@@ -65,6 +65,7 @@ export default function ReadingSection() {
   const [activeSection, setActiveSection] = useState<string>("correspondence");
   // Track timer key to force Timer reset
   const [timerKey, setTimerKey] = useState(0);
+  const [timerAutoStart, setTimerAutoStart] = useState(false); // NEW: controls autoStart
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentPassage, setCurrentPassage] = useState<ReadingPassage | null>(
     null
@@ -86,6 +87,7 @@ export default function ReadingSection() {
     setSelectedAnswers({});
     setSelectedResponseAnswers({});
     setShowResults(false);
+    setTimerAutoStart(false); // Ensure timer does not auto start while loading
 
     try {
       // Pass the section type to the API
@@ -99,6 +101,7 @@ export default function ReadingSection() {
       }
 
       setCurrentPassage(result.data);
+      setTimerAutoStart(true); // Start timer automatically when passage is loaded
     } catch (error) {
       console.error("Failed to generate passage:", error);
       setError(
@@ -516,7 +519,7 @@ export default function ReadingSection() {
               key={timerKey}
               initialMinutes={sectionTimers[activeSection].minutes}
               initialSeconds={sectionTimers[activeSection].seconds}
-              autoStart={false}
+              autoStart={timerAutoStart} // CHANGED: use state
               size="md"
               showControls={true}
               className="bg-white p-3 rounded-lg shadow-sm border border-gray-200"
@@ -560,6 +563,7 @@ export default function ReadingSection() {
                   setError(null);
                   setTopic(""); // Reset topic when switching sections
                   setTimerKey((k) => k + 1); // Reset timer
+                  setTimerAutoStart(false); // Reset autoStart when switching sections
                 }}
                 className={`group relative min-w-0 flex-1 overflow-hidden py-4 px-6 text-center text-sm font-medium hover:bg-gray-50 focus:z-10 ${
                   activeSection === section.id
