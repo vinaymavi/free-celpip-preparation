@@ -5,6 +5,7 @@ import {
   MicrophoneIcon,
   PlayIcon,
 } from "@heroicons/react/24/outline";
+import Timer from "./Timer";
 
 interface SpeakingTask {
   id: number;
@@ -162,12 +163,24 @@ export default function SpeakingSection() {
 
   return (
     <div className="px-4 sm:px-0">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Speaking Section</h1>
-        <p className="mt-2 text-lg text-gray-600">
-          Practice speaking tasks with preparation and response time limits
-          similar to the CELPIP test.
-        </p>
+      <div className="mb-8 flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Speaking Section</h1>
+          <p className="mt-2 text-lg text-gray-600">
+            Practice speaking tasks with preparation and response time limits
+            similar to the CELPIP test.
+          </p>
+        </div>
+        <div className="flex-shrink-0">
+          <Timer
+            initialMinutes={20}
+            initialSeconds={0}
+            autoStart={false}
+            size="md"
+            showControls={true}
+            className="bg-white p-3 rounded-lg shadow-sm border border-gray-200"
+          />
+        </div>
       </div>
 
       {!currentTask ? (
