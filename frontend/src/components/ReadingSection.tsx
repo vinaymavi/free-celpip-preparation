@@ -493,7 +493,7 @@ export default function ReadingSection() {
         <div className="flex justify-between items-start mb-6">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">
-              Reading Comprehension
+              Reading Section
             </h1>
             <p className="mt-2 text-lg text-gray-600">
               Practice reading passages with multiple-choice questions similar
@@ -681,7 +681,9 @@ export default function ReadingSection() {
                 {activeSection === "information" && (
                   <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                     <p className="text-sm font-medium text-blue-900">
-                      Decide which paragraph, A to D, has the information given in each statement below. Select E if the information is not given in any of the paragraphs.
+                      Decide which paragraph, A to D, has the information given
+                      in each statement below. Select E if the information is
+                      not given in any of the paragraphs.
                     </p>
                   </div>
                 )}
@@ -774,9 +776,11 @@ export default function ReadingSection() {
                                 disabled={showResults}
                                 className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
                                   showResults
-                                    ? selectedAnswers[question.id] === question.correctAnswer
+                                    ? selectedAnswers[question.id] ===
+                                      question.correctAnswer
                                       ? "bg-green-50 border-green-300 text-green-800"
-                                      : selectedAnswers[question.id] !== undefined
+                                      : selectedAnswers[question.id] !==
+                                        undefined
                                       ? "bg-red-50 border-red-300 text-red-800"
                                       : "bg-gray-50 border-gray-300"
                                     : selectedAnswers[question.id] !== undefined
