@@ -433,7 +433,7 @@ export default function ReadingSection() {
     );
   };
 
-  const renderViewpointsComment = () => {
+  const renderViewpointsRightPanel = () => {
     if (!currentPassage || activeSection !== "viewpoints" || !currentPassage.responseSection) return null;
 
     // Split the content by numbered placeholders like {1}, {2}, etc.
@@ -507,131 +507,134 @@ export default function ReadingSection() {
     }
 
     return (
-      <div className="card">
-        {/* Questions Section at Top */}
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Questions about the Article
-          </h3>
-          <div className="space-y-4">
-            {currentPassage.questions.map((question, index) => (
-              <div key={question.id} className="space-y-2">
-                <div className="flex items-start space-x-3">
-                  <span className="font-medium text-gray-900 mt-1">
-                    {index + 1}.
-                  </span>
-                  <div className="flex-1">
-                    <h4 className="text-sm font-medium text-gray-900 mb-2">
-                      {question.question}
-                    </h4>
-                    <select
-                      value={selectedAnswers[question.id] ?? ""}
-                      onChange={(e) =>
-                        handleAnswerSelect(question.id, parseInt(e.target.value))
-                      }
-                      disabled={showResults}
-                      className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-                        showResults
-                          ? selectedAnswers[question.id] === question.correctAnswer
-                            ? "bg-green-50 border-green-300 text-green-800"
+      <div className="card flex-1 flex flex-col max-h-screen">
+        <h3 className="text-lg font-semibold text-gray-900 mb-6">
+          Questions about the Article
+        </h3>
+        
+        <div className="overflow-y-auto flex-1 pr-2 min-h-[300px]">
+          {/* Questions Section */}
+          <div className="mb-6">
+            <div className="space-y-4">
+              {currentPassage.questions.map((question, index) => (
+                <div key={question.id} className="space-y-2">
+                  <div className="flex items-start space-x-3">
+                    <span className="font-medium text-gray-900 mt-1">
+                      {index + 1}.
+                    </span>
+                    <div className="flex-1">
+                      <h4 className="text-sm font-medium text-gray-900 mb-2">
+                        {question.question}
+                      </h4>
+                      <select
+                        value={selectedAnswers[question.id] ?? ""}
+                        onChange={(e) =>
+                          handleAnswerSelect(question.id, parseInt(e.target.value))
+                        }
+                        disabled={showResults}
+                        className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                          showResults
+                            ? selectedAnswers[question.id] === question.correctAnswer
+                              ? "bg-green-50 border-green-300 text-green-800"
+                              : selectedAnswers[question.id] !== undefined
+                              ? "bg-red-50 border-red-300 text-red-800"
+                              : "bg-gray-50 border-gray-300"
                             : selectedAnswers[question.id] !== undefined
-                            ? "bg-red-50 border-red-300 text-red-800"
-                            : "bg-gray-50 border-gray-300"
-                          : selectedAnswers[question.id] !== undefined
-                          ? "bg-primary-50 border-primary-300"
-                          : "bg-white border-gray-300"
-                      }`}
-                    >
-                      <option value="">Choose an option</option>
-                      {question.options.map((option, optionIndex) => (
-                        <option key={optionIndex} value={optionIndex}>
-                          {option}
-                        </option>
-                      ))}
-                    </select>
-                    {showResults && (
-                      <div className="mt-1 text-xs">
-                        {selectedAnswers[question.id] === question.correctAnswer ? (
-                          <span className="text-green-600 font-medium">✓ Correct</span>
-                        ) : selectedAnswers[question.id] !== undefined ? (
-                          <span className="text-red-600 font-medium">
-                            ✗ Incorrect - Correct: {question.options[question.correctAnswer]}
-                          </span>
-                        ) : (
-                          <span className="text-gray-600">
-                            Not answered - Correct: {question.options[question.correctAnswer]}
-                          </span>
-                        )}
-                      </div>
-                    )}
+                            ? "bg-primary-50 border-primary-300"
+                            : "bg-white border-gray-300"
+                        }`}
+                      >
+                        <option value="">Choose an option</option>
+                        {question.options.map((option, optionIndex) => (
+                          <option key={optionIndex} value={optionIndex}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                      {showResults && (
+                        <div className="mt-1 text-xs">
+                          {selectedAnswers[question.id] === question.correctAnswer ? (
+                            <span className="text-green-600 font-medium">✓ Correct</span>
+                          ) : selectedAnswers[question.id] !== undefined ? (
+                            <span className="text-red-600 font-medium">
+                              ✗ Incorrect - Correct: {question.options[question.correctAnswer]}
+                            </span>
+                          ) : (
+                            <span className="text-gray-600">
+                              Not answered - Correct: {question.options[question.correctAnswer]}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* Response Section */}
-        <div className="pt-6 border-t border-gray-200">
-          {/* Instructions */}
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-start space-x-3">
-              <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-white text-sm font-medium">i</span>
+          {/* Response Section */}
+          <div className="pt-6 border-t border-gray-200">
+            {/* Instructions */}
+            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-start space-x-3">
+                <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-white text-sm font-medium">i</span>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-blue-900">
+                    {currentPassage.responseSection.instruction}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-medium text-blue-900">
-                  {currentPassage.responseSection.instruction}
-                </p>
+            </div>
+
+            <div className="bg-white border border-gray-200 rounded-lg">
+              <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
+                <h3 className="font-semibold text-gray-900">
+                  {currentPassage.responseSection.title}
+                </h3>
+              </div>
+              <div className="p-4">
+                <div className="leading-relaxed text-gray-900">{elements}</div>
               </div>
             </div>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-lg">
-            <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
-              <h3 className="font-semibold text-gray-900">
-                {currentPassage.responseSection.title}
-              </h3>
-            </div>
-            <div className="p-4">
-              <div className="leading-relaxed text-gray-900">{elements}</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Submit Button */}
-        <div className="mt-6 flex justify-center">
-          {!showResults ? (
-            <button
-              onClick={submitAnswers}
-              className="btn btn-primary"
-              disabled={
-                Object.keys(selectedAnswers).length === 0 &&
-                Object.keys(selectedResponseAnswers).length === 0
-              }
-            >
-              Submit Answers
-            </button>
-          ) : (
-            <div className="text-center">
-              <div className="text-lg font-medium text-gray-900 mb-2">
-                Score: {calculateScore().correct} / {calculateScore().total}
-                <span className="text-sm font-normal text-gray-600 ml-2">
-                  (
-                  {Math.round(
-                    (calculateScore().correct / calculateScore().total) * 100
-                  )}
-                  %)
-                </span>
-              </div>
+          {/* Submit Button */}
+          <div className="mt-6 flex justify-center">
+            {!showResults ? (
               <button
-                onClick={generatePassage}
+                onClick={submitAnswers}
                 className="btn btn-primary"
+                disabled={
+                  Object.keys(selectedAnswers).length === 0 &&
+                  Object.keys(selectedResponseAnswers).length === 0
+                }
               >
-                Try Another Passage
+                Submit Answers
               </button>
-            </div>
-          )}
+            ) : (
+              <div className="text-center">
+                <div className="text-lg font-medium text-gray-900 mb-2">
+                  Score: {calculateScore().correct} / {calculateScore().total}
+                  <span className="text-sm font-normal text-gray-600 ml-2">
+                    (
+                    {Math.round(
+                      (calculateScore().correct / calculateScore().total) * 100
+                    )}
+                    %)
+                  </span>
+                </div>
+                <button
+                  onClick={generatePassage}
+                  className="btn btn-primary"
+                >
+                  Try Another Passage
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -887,7 +890,7 @@ export default function ReadingSection() {
               <div className="lg:w-5/12">{renderViewpointsArticle()}</div>
 
               {/* Right Side - Reader Comment with blanks */}
-              <div className="lg:w-7/12">{renderViewpointsComment()}</div>
+              <div className="lg:w-7/12">{renderViewpointsRightPanel()}</div>
             </div>
           ) : (
             /* Other Sections Layout */
