@@ -53,7 +53,18 @@ interface ReadingPassage {
 }
 
 export default function ReadingSection() {
+  // Timer values for each section
+  const sectionTimers: { [key: string]: { minutes: number; seconds: number } } =
+    {
+      correspondence: { minutes: 11, seconds: 0 },
+      diagram: { minutes: 8, seconds: 0 },
+      information: { minutes: 9, seconds: 0 },
+      viewpoints: { minutes: 10, seconds: 0 },
+    };
+
   const [activeSection, setActiveSection] = useState<string>("correspondence");
+  // Track timer key to force Timer reset
+  const [timerKey, setTimerKey] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentPassage, setCurrentPassage] = useState<ReadingPassage | null>(
     null
@@ -502,8 +513,9 @@ export default function ReadingSection() {
           </div>
           <div className="flex-shrink-0">
             <Timer
-              initialMinutes={55}
-              initialSeconds={0}
+              key={timerKey}
+              initialMinutes={sectionTimers[activeSection].minutes}
+              initialSeconds={sectionTimers[activeSection].seconds}
               autoStart={false}
               size="md"
               showControls={true}
@@ -547,6 +559,7 @@ export default function ReadingSection() {
                   setSelectedResponseAnswers({});
                   setError(null);
                   setTopic(""); // Reset topic when switching sections
+                  setTimerKey((k) => k + 1); // Reset timer
                 }}
                 className={`group relative min-w-0 flex-1 overflow-hidden py-4 px-6 text-center text-sm font-medium hover:bg-gray-50 focus:z-10 ${
                   activeSection === section.id
