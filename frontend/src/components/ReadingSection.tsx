@@ -129,8 +129,8 @@ export default function ReadingSection() {
       }
     });
 
-    // Score response section if it exists (only for correspondence section)
-    if (currentPassage.responseSection && activeSection === "correspondence") {
+    // Score response section if it exists (for correspondence and viewpoints sections)
+    if (currentPassage.responseSection && (activeSection === "correspondence" || activeSection === "viewpoints")) {
       currentPassage.responseSection.blanks.forEach((blank) => {
         total++;
         if (selectedResponseAnswers[blank.id] === blank.correctAnswer) {
@@ -412,6 +412,234 @@ export default function ReadingSection() {
     );
   };
 
+  const renderViewpointsArticle = () => {
+    if (!currentPassage || activeSection !== "viewpoints") return null;
+
+    return (
+      <div className="card">
+        <h2 className="text-xl font-bold text-gray-900 mb-4 border-b border-gray-200 pb-2">
+          {currentPassage.title}
+        </h2>
+        <div className="prose max-w-none text-gray-700 leading-relaxed overflow-y-auto max-h-[calc(100vh-12rem)] pr-2">
+          {currentPassage.content
+            .split("\n")
+            .map((paragraph, index) => (
+              <p key={index} className="mb-4">
+                {paragraph}
+              </p>
+            ))}
+        </div>
+      </div>
+    );
+  };
+
+  const renderViewpointsRightPanel = () => {
+    if (!currentPassage || activeSection !== "viewpoints" || !currentPassage.responseSection) return null;
+
+    // Split the content by numbered placeholders like {1}, {2}, etc.
+    const parts = currentPassage.responseSection.content.split(/\{(\d+)\}/);
+    const elements = [];
+
+    for (let i = 0; i < parts.length; i++) {
+      if (i % 2 === 0) {
+        // Regular text parts
+        if (parts[i]) {
+          elements.push(
+            <span key={`text-${i}`} className="text-gray-900">
+              {parts[i]}
+            </span>
+          );
+        }
+      } else {
+        // Blank placeholders
+        const blankNumber = parseInt(parts[i]);
+        const blank = currentPassage.responseSection.blanks.find(
+          (b) => b.id === blankNumber
+        );
+
+        if (blank) {
+          elements.push(
+            <span key={`blank-${blankNumber}`} className="inline-flex mx-1">
+              <select
+                value={selectedResponseAnswers[blank.id] ?? ""}
+                onChange={(e) =>
+                  handleResponseAnswerSelect(blank.id, parseInt(e.target.value))
+                }
+                disabled={showResults}
+                className={`inline-block min-w-[150px] px-3 py-1 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                  showResults
+                    ? selectedResponseAnswers[blank.id] === blank.correctAnswer
+                      ? "bg-green-50 border-green-300 text-green-800"
+                      : selectedResponseAnswers[blank.id] !== undefined
+                      ? "bg-red-50 border-red-300 text-red-800"
+                      : "bg-gray-50 border-gray-300"
+                    : selectedResponseAnswers[blank.id] !== undefined
+                    ? "bg-primary-50 border-primary-300"
+                    : "bg-white border-gray-300"
+                }`}
+              >
+                <option value="">↓</option>
+                {blank.options.map((option, optionIndex) => (
+                  <option key={optionIndex} value={optionIndex}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+              {showResults && (
+                <div className="text-xs mt-1">
+                  {selectedResponseAnswers[blank.id] === blank.correctAnswer ? (
+                    <span className="text-green-600 font-medium">✓</span>
+                  ) : selectedResponseAnswers[blank.id] !== undefined ? (
+                    <span className="text-red-600 font-medium">
+                      ✗ ({blank.options[blank.correctAnswer]})
+                    </span>
+                  ) : (
+                    <span className="text-gray-600">
+                      ({blank.options[blank.correctAnswer]})
+                    </span>
+                  )}
+                </div>
+              )}
+            </span>
+          );
+        }
+      }
+    }
+
+    return (
+      <div className="card flex-1 flex flex-col max-h-screen">
+        <h3 className="text-lg font-semibold text-gray-900 mb-6">
+          Questions about the Article
+        </h3>
+        
+        <div className="overflow-y-auto flex-1 pr-2 min-h-[300px]">
+          {/* Questions Section */}
+          <div className="mb-6">
+            <div className="space-y-4">
+              {currentPassage.questions.map((question, index) => (
+                <div key={question.id} className="space-y-2">
+                  <div className="flex items-start space-x-3">
+                    <span className="font-medium text-gray-900 mt-1">
+                      {index + 1}.
+                    </span>
+                    <div className="flex-1">
+                      <h4 className="text-sm font-medium text-gray-900 mb-2">
+                        {question.question}
+                      </h4>
+                      <select
+                        value={selectedAnswers[question.id] ?? ""}
+                        onChange={(e) =>
+                          handleAnswerSelect(question.id, parseInt(e.target.value))
+                        }
+                        disabled={showResults}
+                        className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                          showResults
+                            ? selectedAnswers[question.id] === question.correctAnswer
+                              ? "bg-green-50 border-green-300 text-green-800"
+                              : selectedAnswers[question.id] !== undefined
+                              ? "bg-red-50 border-red-300 text-red-800"
+                              : "bg-gray-50 border-gray-300"
+                            : selectedAnswers[question.id] !== undefined
+                            ? "bg-primary-50 border-primary-300"
+                            : "bg-white border-gray-300"
+                        }`}
+                      >
+                        <option value="">Choose an option</option>
+                        {question.options.map((option, optionIndex) => (
+                          <option key={optionIndex} value={optionIndex}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                      {showResults && (
+                        <div className="mt-1 text-xs">
+                          {selectedAnswers[question.id] === question.correctAnswer ? (
+                            <span className="text-green-600 font-medium">✓ Correct</span>
+                          ) : selectedAnswers[question.id] !== undefined ? (
+                            <span className="text-red-600 font-medium">
+                              ✗ Incorrect - Correct: {question.options[question.correctAnswer]}
+                            </span>
+                          ) : (
+                            <span className="text-gray-600">
+                              Not answered - Correct: {question.options[question.correctAnswer]}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Response Section */}
+          <div className="pt-6 border-t border-gray-200">
+            {/* Instructions */}
+            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-start space-x-3">
+                <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-white text-sm font-medium">i</span>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-blue-900">
+                    {currentPassage.responseSection.instruction}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white border border-gray-200 rounded-lg">
+              <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
+                <h3 className="font-semibold text-gray-900">
+                  {currentPassage.responseSection.title}
+                </h3>
+              </div>
+              <div className="p-4">
+                <div className="leading-relaxed text-gray-900">{elements}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <div className="mt-6 flex justify-center">
+            {!showResults ? (
+              <button
+                onClick={submitAnswers}
+                className="btn btn-primary"
+                disabled={
+                  Object.keys(selectedAnswers).length === 0 &&
+                  Object.keys(selectedResponseAnswers).length === 0
+                }
+              >
+                Submit Answers
+              </button>
+            ) : (
+              <div className="text-center">
+                <div className="text-lg font-medium text-gray-900 mb-2">
+                  Score: {calculateScore().correct} / {calculateScore().total}
+                  <span className="text-sm font-normal text-gray-600 ml-2">
+                    (
+                    {Math.round(
+                      (calculateScore().correct / calculateScore().total) * 100
+                    )}
+                    %)
+                  </span>
+                </div>
+                <button
+                  onClick={generatePassage}
+                  className="btn btn-primary"
+                >
+                  Try Another Passage
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const renderFillInTheBlanks = (
     content: string,
     blanks: ResponseSection["blanks"]
@@ -654,6 +882,15 @@ export default function ReadingSection() {
 
               {/* Right Side - Email with blanks */}
               <div className="lg:w-7/12">{renderDiagramEmail()}</div>
+            </div>
+          ) : activeSection === "viewpoints" ? (
+            /* Viewpoints Section Layout - Similar to Diagram */
+            <div className="flex flex-col lg:flex-row justify-between items-start space-y-4 lg:space-y-0 lg:space-x-6">
+              {/* Left Side - Main Article */}
+              <div className="lg:w-5/12">{renderViewpointsArticle()}</div>
+
+              {/* Right Side - Reader Comment with blanks */}
+              <div className="lg:w-7/12">{renderViewpointsRightPanel()}</div>
             </div>
           ) : (
             /* Other Sections Layout */

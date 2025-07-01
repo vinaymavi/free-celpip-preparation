@@ -264,19 +264,70 @@ IMPORTANT:
     viewpoints: ChatPromptTemplate.fromMessages([
       [
         "system",
-        `You are an expert CELPIP test creator. Generate a reading comprehension passage and questions for the "Reading for Viewpoints" section.`,
+        `You are an expert CELPIP test creator. Generate content for the "Reading for Viewpoints" section (Part 4) which tests understanding of different opinions and perspectives. This section includes a main article and a reader's comment response.`,
       ],
       [
         "user",
-        `
-Topic: {topic}
+        `Topic: {topic}
 
 Please create:
-1. A title for the passage (5-8 words)
-2. A reading passage (450-500 words) presenting different viewpoints
-3. 10-11 multiple-choice questions testing viewpoint understanding
+1. A title for the main article (5-8 words)
+2. A main article (450-500 words) presenting at least two different viewpoints/opinions on the topic
+3. 5-6 multiple-choice questions about the main article
+4. A reader's comment response section with fill-in-the-blank questions
 
-Format your response as JSON with title, content, and questions array.`,
+MAIN ARTICLE REQUIREMENTS:
+- Present at least two contrasting viewpoints or opinions on the topic
+- Include factual information mixed with opinions
+- Use phrases like "Some people believe...", "Critics argue...", "Supporters claim...", "However, others think..."
+- Written at CLB 8-10 level (intermediate to advanced)
+- Clear structure with distinct viewpoints in different paragraphs
+- Include reasoning and examples for each viewpoint
+
+MAIN ARTICLE QUESTIONS (5-6 questions):
+- Test comprehension of different viewpoints presented
+- Questions about opinions vs facts
+- Inference questions about author's perspective
+- Understanding of contrasting arguments
+- Each question has 4 multiple-choice options
+
+READER'S COMMENT SECTION:
+- Title: "Reader's Comment"
+- A response comment (200-250 words) that references the main article
+- Express a clear opinion about the topic discussed in the article
+- Include 7-8 fill-in-the-blank questions embedded in the comment
+- Use numbered placeholders in curly braces {{1}}, {{2}}, etc.
+- Each blank should have 4 contextually appropriate options
+- Test vocabulary, context understanding, and opinion comprehension
+
+FORMAT REQUIREMENTS:
+Return as JSON with this exact structure:
+{{
+  "title": "Main article title",
+  "content": "Main article content (450-500 words)",
+  "questions": [
+    {{
+      "id": 1,
+      "question": "Question about the article",
+      "options": ["option1", "option2", "option3", "option4"],
+      "correctAnswer": 0
+    }}
+  ],
+  "responseSection": {{
+    "title": "Reader's Comment",
+    "instruction": "Complete the reader's comment by filling in the blanks. Select the best choice for each blank from the drop-down menu (↓).",
+    "content": "Reader's comment content with numbered blanks {{1}}, {{2}}, etc.",
+    "blanks": [
+      {{
+        "id": 1,
+        "options": ["option1", "option2", "option3", "option4"],
+        "correctAnswer": 0
+      }}
+    ]
+  }}
+}}
+
+Ensure questions test different skills: viewpoint recognition, opinion vs fact distinction, inference, and contextual understanding.`,
       ],
     ]),
   },
