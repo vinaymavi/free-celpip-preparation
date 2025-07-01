@@ -502,7 +502,7 @@ export default function ReadingSection() {
           </div>
           <div className="flex-shrink-0">
             <Timer
-              initialMinutes={11}
+              initialMinutes={55}
               initialSeconds={0}
               autoStart={false}
               size="md"
