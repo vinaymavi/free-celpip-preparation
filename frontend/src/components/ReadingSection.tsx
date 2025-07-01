@@ -678,6 +678,13 @@ export default function ReadingSection() {
                 <h3 className="text-lg font-semibold text-gray-900 mb-6">
                   Questions
                 </h3>
+                {activeSection === "information" && (
+                  <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-sm font-medium text-blue-900">
+                      Decide which paragraph, A to D, has the information given in each statement below. Select E if the information is not given in any of the paragraphs.
+                    </p>
+                  </div>
+                )}
                 <div className="space-y-6 overflow-y-auto flex-1 pr-2 min-h-[300px]">
                   {currentPassage.questions.map((question, index) => (
                     <div key={question.id} className="space-y-3">

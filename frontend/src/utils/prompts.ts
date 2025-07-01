@@ -228,9 +228,7 @@ QUESTION REQUIREMENTS:
   - E means "Information not given in any paragraph"
 
 QUESTION FORMAT:
-Each question should start with: "Decide which paragraph, A to D, has the information given in the statement below. Select E if the information is not given in any of the paragraphs."
-
-Then present the statement to be matched.
+Each question should contain ONLY the statement to be matched. Do NOT include the instruction text "Decide which paragraph..." in individual questions as this will be displayed as a section header.
 
 EXAMPLE TYPES OF STATEMENTS:
 - Rephrased facts from specific paragraphs
@@ -247,7 +245,7 @@ Format your response as JSON:
   "questions": [
     {{
       "id": 1,
-      "question": "Decide which paragraph, A to D, has the information given in the statement below. Select E if the information is not given in any of the paragraphs.\\n\\n[Statement to be matched]",
+      "question": "[Statement to be matched]",
       "options": ["A", "B", "C", "D", "E"],
       "correctAnswer": 0
     }}
