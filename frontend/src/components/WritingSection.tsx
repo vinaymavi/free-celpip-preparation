@@ -577,6 +577,7 @@ export default function WritingSection() {
   );
   const [userResponse, setUserResponse] = useState("");
   const [timerKey, setTimerKey] = useState(0); // Key to reset timer when switching tasks
+  const [timerAutoStart, setTimerAutoStart] = useState(false); // Controls timer auto-start
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [evaluationResult, setEvaluationResult] =
@@ -592,6 +593,7 @@ export default function WritingSection() {
       setEvaluationResult(null);
       setEvaluationError(null);
       setTimerKey((prev) => prev + 1);
+      setTimerAutoStart(true); // Auto-start timer when valid question selected
     }
   };
 
@@ -604,6 +606,7 @@ export default function WritingSection() {
       setEvaluationResult(null);
       setEvaluationError(null);
       setTimerKey((prev) => prev + 1);
+      setTimerAutoStart(true); // Auto-start timer when valid task selected
     }
   };
 
@@ -699,7 +702,7 @@ You can try submitting again or switch to a different AI provider.`
               key={timerKey}
               initialMinutes={activeTab === "email" ? 27 : 26}
               initialSeconds={0}
-              autoStart={false}
+              autoStart={timerAutoStart}
               size="md"
               showControls={true}
               className="bg-white p-3 rounded-lg shadow-sm border border-gray-200"
@@ -721,6 +724,7 @@ You can try submitting again or switch to a different AI provider.`
                   setEvaluationResult(null);
                   setEvaluationError(null);
                   setTimerKey((prev) => prev + 1); // Reset timer on tab switch
+                  setTimerAutoStart(false); // Reset auto-start when switching tabs
                 }}
                 className={`group relative min-w-0 flex-1 overflow-hidden py-4 px-6 text-center text-sm font-medium hover:bg-gray-50 focus:z-10 transition-colors duration-200 focus:outline-none flex flex-col items-center justify-center ${
                   activeTab === tab.key
