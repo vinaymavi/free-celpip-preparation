@@ -53,7 +53,19 @@ interface ReadingPassage {
 }
 
 export default function ReadingSection() {
+  // Timer values for each section
+  const sectionTimers: { [key: string]: { minutes: number; seconds: number } } =
+    {
+      correspondence: { minutes: 11, seconds: 0 },
+      diagram: { minutes: 8, seconds: 0 },
+      information: { minutes: 9, seconds: 0 },
+      viewpoints: { minutes: 10, seconds: 0 },
+    };
+
   const [activeSection, setActiveSection] = useState<string>("correspondence");
+  // Track timer key to force Timer reset
+  const [timerKey, setTimerKey] = useState(0);
+  const [timerAutoStart, setTimerAutoStart] = useState(false); // NEW: controls autoStart
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentPassage, setCurrentPassage] = useState<ReadingPassage | null>(
     null
@@ -75,6 +87,7 @@ export default function ReadingSection() {
     setSelectedAnswers({});
     setSelectedResponseAnswers({});
     setShowResults(false);
+    setTimerAutoStart(false); // Ensure timer does not auto start while loading
 
     try {
       // Pass the section type to the API
@@ -88,6 +101,7 @@ export default function ReadingSection() {
       }
 
       setCurrentPassage(result.data);
+      setTimerAutoStart(true); // Start timer automatically when passage is loaded
     } catch (error) {
       console.error("Failed to generate passage:", error);
       setError(
@@ -721,7 +735,7 @@ export default function ReadingSection() {
         <div className="flex justify-between items-start mb-6">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">
-              Reading Comprehension
+              Reading Section
             </h1>
             <p className="mt-2 text-lg text-gray-600">
               Practice reading passages with multiple-choice questions similar
@@ -730,9 +744,10 @@ export default function ReadingSection() {
           </div>
           <div className="flex-shrink-0">
             <Timer
-              initialMinutes={55}
-              initialSeconds={0}
-              autoStart={false}
+              key={timerKey}
+              initialMinutes={sectionTimers[activeSection].minutes}
+              initialSeconds={sectionTimers[activeSection].seconds}
+              autoStart={timerAutoStart} // CHANGED: use state
               size="md"
               showControls={true}
               className="bg-white p-3 rounded-lg shadow-sm border border-gray-200"
@@ -775,6 +790,8 @@ export default function ReadingSection() {
                   setSelectedResponseAnswers({});
                   setError(null);
                   setTopic(""); // Reset topic when switching sections
+                  setTimerKey((k) => k + 1); // Reset timer
+                  setTimerAutoStart(false); // Reset autoStart when switching sections
                 }}
                 className={`group relative min-w-0 flex-1 overflow-hidden py-4 px-6 text-center text-sm font-medium hover:bg-gray-50 focus:z-10 ${
                   activeSection === section.id
@@ -918,7 +935,9 @@ export default function ReadingSection() {
                 {activeSection === "information" && (
                   <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                     <p className="text-sm font-medium text-blue-900">
-                      Decide which paragraph, A to D, has the information given in each statement below. Select E if the information is not given in any of the paragraphs.
+                      Decide which paragraph, A to D, has the information given
+                      in each statement below. Select E if the information is
+                      not given in any of the paragraphs.
                     </p>
                   </div>
                 )}
@@ -1011,9 +1030,11 @@ export default function ReadingSection() {
                                 disabled={showResults}
                                 className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
                                   showResults
-                                    ? selectedAnswers[question.id] === question.correctAnswer
+                                    ? selectedAnswers[question.id] ===
+                                      question.correctAnswer
                                       ? "bg-green-50 border-green-300 text-green-800"
-                                      : selectedAnswers[question.id] !== undefined
+                                      : selectedAnswers[question.id] !==
+                                        undefined
                                       ? "bg-red-50 border-red-300 text-red-800"
                                       : "bg-gray-50 border-gray-300"
                                     : selectedAnswers[question.id] !== undefined
