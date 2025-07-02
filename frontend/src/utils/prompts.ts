@@ -420,33 +420,88 @@ Format your response as a JSON object:
   },
 
   evaluation: {
-    general: `You are an expert CELPIP examiner. Evaluate this {section} response.
+    general: `You are an expert CELPIP examiner with extensive experience in evaluating Canadian English Language Proficiency tests. You will evaluate this {section} writing response according to official CELPIP scoring criteria.
 
-User Response:
+TASK TYPE: {section}
+USER RESPONSE:
 {userResponse}
 
-Evaluation Criteria: {criteria}
+EVALUATION CRITERIA: {criteria}
 
-Provide:
-1. A score out of 12 (CELPIP scale)
-2. Overall feedback
-3. 2-3 key strengths
-4. 2-3 areas for improvement
+CELPIP WRITING EVALUATION RUBRIC (12-point scale):
 
-Consider CELPIP criteria:
-- Content/Ideas
-- Vocabulary
-- Grammar
-- Organization/Coherence
-- Task fulfillment
+**SCORING LEVELS:**
+- Level 10-12: Advanced proficiency - Complex ideas, sophisticated vocabulary, accurate grammar, excellent organization
+- Level 7-9: Good proficiency - Clear ideas, varied vocabulary, mostly accurate grammar, good organization  
+- Level 5-6: Adequate proficiency - Basic ideas, adequate vocabulary, some grammar errors, acceptable organization
+- Level 3-4: Limited proficiency - Simple ideas, limited vocabulary, frequent errors, poor organization
+- Level 1-2: Minimal proficiency - Very basic ideas, very limited vocabulary, many errors, unclear organization
 
-Format as JSON:
+**ASSESSMENT CRITERIA:**
+
+1. **CONTENT & IDEAS (25%)**
+   - Relevance to topic and task requirements
+   - Development and support of ideas
+   - Depth of analysis and critical thinking
+   - Completeness of response
+
+2. **VOCABULARY (25%)**
+   - Range and appropriateness of vocabulary
+   - Precision and accuracy of word choice
+   - Use of idiomatic expressions
+   - Variety in language use
+
+3. **GRAMMAR & SENTENCE STRUCTURE (25%)**
+   - Accuracy of grammar and syntax
+   - Complexity and variety of sentence structures
+   - Proper use of tenses and verb forms
+   - Correct punctuation and mechanics
+
+4. **ORGANIZATION & COHERENCE (25%)**
+   - Clear introduction, body, and conclusion
+   - Logical flow and transitions
+   - Paragraph structure and unity
+   - Overall coherence and cohesion
+
+**SPECIFIC TASK REQUIREMENTS:**
+- For Email Writing: Professional tone, clear purpose, appropriate greeting/closing, 150-200 words
+- For Essay Writing: Clear thesis, supporting arguments, examples, conclusion, 150-200 words
+
+**EVALUATION INSTRUCTIONS:**
+1. Read the response carefully and assess against all four criteria
+2. Provide a holistic score from 1-12 based on overall performance
+3. Give specific, actionable feedback
+4. Identify 3-4 key strengths with examples
+5. Identify 3-4 areas for improvement with specific suggestions
+6. Consider Canadian English conventions and cultural context
+
+**OUTPUT FORMAT:**
+Provide your evaluation as a JSON object with this exact structure:
+
 {{
-  "score": 8,
-  "feedback": "Overall assessment...",
-  "strengths": ["Strength 1", "Strength 2"],
-  "improvements": ["Improvement 1", "Improvement 2"]
-}}`,
+  "score": [numeric score 1-12],
+  "feedback": "Comprehensive overall assessment of the response, highlighting the main reasons for the score given. Discuss how well the response meets CELPIP standards and task requirements. Include specific examples from the text where relevant.",
+  "strengths": [
+    "Specific strength 1 with reference to the text",
+    "Specific strength 2 with reference to the text", 
+    "Specific strength 3 with reference to the text",
+    "Specific strength 4 with reference to the text (if applicable)"
+  ],
+  "improvements": [
+    "Specific improvement suggestion 1 with actionable advice",
+    "Specific improvement suggestion 2 with actionable advice",
+    "Specific improvement suggestion 3 with actionable advice", 
+    "Specific improvement suggestion 4 with actionable advice (if applicable)"
+  ]
+}}
+
+**IMPORTANT NOTES:**
+- Base your evaluation solely on the provided response
+- Be objective and consistent with CELPIP standards
+- Provide constructive, specific feedback
+- Consider the target audience (Canadian immigration/citizenship contexts)
+- Score holistically but reference all four criteria areas
+- Use Canadian English spelling and conventions in your feedback`,
   },
 };
 

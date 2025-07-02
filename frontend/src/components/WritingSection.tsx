@@ -4,8 +4,10 @@ import {
   DocumentTextIcon,
   ChevronDownIcon,
   CheckCircleIcon,
+  ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
 import Timer from "./Timer";
+import { submitResponse, type EvaluationResult } from "../utils/api";
 
 interface SurveyQuestion {
   id: number;
@@ -577,6 +579,9 @@ export default function WritingSection() {
   const [timerKey, setTimerKey] = useState(0); // Key to reset timer when switching tasks
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [evaluationResult, setEvaluationResult] =
+    useState<EvaluationResult | null>(null);
+  const [evaluationError, setEvaluationError] = useState<string | null>(null);
 
   const handleSurveyQuestionSelect = (questionId: number) => {
     const question = surveyQuestions.find((q) => q.id === questionId);
@@ -584,6 +589,8 @@ export default function WritingSection() {
       setSelectedSurveyQuestion(question);
       setUserResponse("");
       setFeedback(null);
+      setEvaluationResult(null);
+      setEvaluationError(null);
       setTimerKey((prev) => prev + 1);
     }
   };
@@ -594,6 +601,8 @@ export default function WritingSection() {
       setSelectedEmailTask(task);
       setUserResponse("");
       setFeedback(null);
+      setEvaluationResult(null);
+      setEvaluationError(null);
       setTimerKey((prev) => prev + 1);
     }
   };
@@ -602,33 +611,65 @@ export default function WritingSection() {
     if (!userResponse.trim()) return;
 
     setIsSubmitting(true);
-    try {
-      // Simulate API call to LLM for feedback
-      // In a real implementation, this would call your LLM API
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+    setEvaluationError(null);
+    setEvaluationResult(null);
+    setFeedback(null);
 
-      const mockFeedback = `Great work! Your response demonstrates clear reasoning and good structure. Here are some specific observations:
+    try {
+      // Determine the task type and context
+      const taskType =
+        activeTab === "email" ? "Email Writing" : "Essay Writing";
+      const taskContext =
+        activeTab === "email"
+          ? `Email Task: ${selectedEmailTask?.title}\nSituation: ${
+              selectedEmailTask?.situation
+            }\nRequirements: ${selectedEmailTask?.requirements.join(", ")}`
+          : `Survey Question: ${selectedSurveyQuestion?.title}\nSituation: ${selectedSurveyQuestion?.situation}\nOptions: A) ${selectedSurveyQuestion?.optionA} B) ${selectedSurveyQuestion?.optionB}`;
+
+      // Submit to LangChain service for evaluation
+      const response = await submitResponse(
+        `${taskType} - ${taskContext}`,
+        userResponse
+      );
+
+      if (response.success && response.data) {
+        setEvaluationResult(response.data);
+
+        // Also set the old feedback format for backward compatibility
+        const legacyFeedback = `**CELPIP Score: ${response.data.score}/12**
+
+${response.data.feedback}
 
 **Strengths:**
-- Clear position statement
-- Good use of examples to support your arguments
-- Appropriate word count (${wordCount} words)
-- Well-organized structure
+${response.data.strengths.map((strength) => `• ${strength}`).join("\n")}
 
-**Areas for improvement:**
-- Consider adding more specific details to strengthen your examples
-- Use more varied transition words to improve flow
-- Double-check grammar and punctuation
+**Areas for Improvement:**
+${response.data.improvements
+  .map((improvement) => `• ${improvement}`)
+  .join("\n")}
 
-**Score: 8/10**
+**Word Count:** ${wordCount} words`;
 
-This response shows strong critical thinking and persuasive writing skills. Keep practicing to further refine your argumentation techniques.`;
-
-      setFeedback(mockFeedback);
+        setFeedback(legacyFeedback);
+      } else {
+        throw new Error(response.error || "Failed to get evaluation");
+      }
     } catch (error) {
-      console.error("Error getting feedback:", error);
+      console.error("Error getting LLM feedback:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error occurred";
+      setEvaluationError(errorMessage);
+
+      // Fallback to a helpful error message
       setFeedback(
-        "Sorry, there was an error getting feedback. Please try again."
+        `Sorry, there was an error getting feedback: ${errorMessage}. 
+
+Please ensure:
+• You have configured an AI model (click the model selector)
+• Your API key is valid and has sufficient credits
+• You have a stable internet connection
+
+You can try submitting again or switch to a different AI provider.`
       );
     } finally {
       setIsSubmitting(false);
@@ -677,6 +718,8 @@ This response shows strong critical thinking and persuasive writing skills. Keep
                   setSelectedEmailTask(null);
                   setUserResponse("");
                   setFeedback(null);
+                  setEvaluationResult(null);
+                  setEvaluationError(null);
                   setTimerKey((prev) => prev + 1); // Reset timer on tab switch
                 }}
                 className={`group relative min-w-0 flex-1 overflow-hidden py-4 px-6 text-center text-sm font-medium hover:bg-gray-50 focus:z-10 transition-colors duration-200 focus:outline-none flex flex-col items-center justify-center ${
@@ -813,7 +856,116 @@ This response shows strong critical thinking and persuasive writing skills. Keep
               </button>
             </div>
 
-            {feedback && (
+            {/* Enhanced Feedback Display - Email Section */}
+            {evaluationError && (
+              <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <h4 className="font-medium text-red-900 mb-2 flex items-center">
+                  <ExclamationTriangleIcon className="w-5 h-5 mr-2" />
+                  Evaluation Error
+                </h4>
+                <div className="text-sm text-red-800">{evaluationError}</div>
+              </div>
+            )}
+
+            {evaluationResult && (
+              <div className="mt-6 space-y-4">
+                {/* CELPIP Score Header */}
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-semibold text-blue-900 flex items-center">
+                      <CheckCircleIcon className="w-6 h-6 mr-2" />
+                      CELPIP Writing Evaluation
+                    </h4>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-blue-900">
+                        {evaluationResult.score}/12
+                      </div>
+                      <div className="text-xs text-blue-700">CELPIP Score</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Overall Feedback */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <h5 className="font-medium text-gray-900 mb-2">
+                    Overall Assessment
+                  </h5>
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    {evaluationResult.feedback}
+                  </p>
+                </div>
+
+                {/* Strengths and Improvements */}
+                <div className="grid grid-cols-1 gap-4">
+                  {/* Strengths */}
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <h5 className="font-medium text-green-900 mb-2 flex items-center">
+                      <svg
+                        className="w-4 h-4 mr-2"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      Strengths
+                    </h5>
+                    <ul className="text-sm text-green-800 space-y-1">
+                      {evaluationResult.strengths.map((strength, index) => (
+                        <li key={index} className="flex items-start">
+                          <span className="w-1 h-1 bg-green-600 rounded-full mt-2 mr-2 flex-shrink-0"></span>
+                          {strength}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Areas for Improvement */}
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                    <h5 className="font-medium text-amber-900 mb-2 flex items-center">
+                      <svg
+                        className="w-4 h-4 mr-2"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      Areas for Improvement
+                    </h5>
+                    <ul className="text-sm text-amber-800 space-y-1">
+                      {evaluationResult.improvements.map(
+                        (improvement, index) => (
+                          <li key={index} className="flex items-start">
+                            <span className="w-1 h-1 bg-amber-600 rounded-full mt-2 mr-2 flex-shrink-0"></span>
+                            {improvement}
+                          </li>
+                        )
+                      )}
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Word Count Info */}
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600">
+                      Word Count: {wordCount} words
+                    </span>
+                    <span className="text-gray-600">Target: 150-200 words</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Fallback feedback display (for backward compatibility) */}
+            {feedback && !evaluationResult && (
               <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                 <h4 className="font-medium text-green-900 mb-2 flex items-center">
                   <CheckCircleIcon className="w-5 h-5 mr-2" />
@@ -949,7 +1101,116 @@ This response shows strong critical thinking and persuasive writing skills. Keep
               </button>
             </div>
 
-            {feedback && (
+            {/* Enhanced Feedback Display - Essay Section */}
+            {evaluationError && (
+              <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <h4 className="font-medium text-red-900 mb-2 flex items-center">
+                  <ExclamationTriangleIcon className="w-5 h-5 mr-2" />
+                  Evaluation Error
+                </h4>
+                <div className="text-sm text-red-800">{evaluationError}</div>
+              </div>
+            )}
+
+            {evaluationResult && (
+              <div className="mt-6 space-y-4">
+                {/* CELPIP Score Header */}
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-semibold text-blue-900 flex items-center">
+                      <CheckCircleIcon className="w-6 h-6 mr-2" />
+                      CELPIP Writing Evaluation
+                    </h4>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-blue-900">
+                        {evaluationResult.score}/12
+                      </div>
+                      <div className="text-xs text-blue-700">CELPIP Score</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Overall Feedback */}
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <h5 className="font-medium text-gray-900 mb-2">
+                    Overall Assessment
+                  </h5>
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    {evaluationResult.feedback}
+                  </p>
+                </div>
+
+                {/* Strengths and Improvements */}
+                <div className="grid grid-cols-1 gap-4">
+                  {/* Strengths */}
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <h5 className="font-medium text-green-900 mb-2 flex items-center">
+                      <svg
+                        className="w-4 h-4 mr-2"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      Strengths
+                    </h5>
+                    <ul className="text-sm text-green-800 space-y-1">
+                      {evaluationResult.strengths.map((strength, index) => (
+                        <li key={index} className="flex items-start">
+                          <span className="w-1 h-1 bg-green-600 rounded-full mt-2 mr-2 flex-shrink-0"></span>
+                          {strength}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Areas for Improvement */}
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                    <h5 className="font-medium text-amber-900 mb-2 flex items-center">
+                      <svg
+                        className="w-4 h-4 mr-2"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      Areas for Improvement
+                    </h5>
+                    <ul className="text-sm text-amber-800 space-y-1">
+                      {evaluationResult.improvements.map(
+                        (improvement, index) => (
+                          <li key={index} className="flex items-start">
+                            <span className="w-1 h-1 bg-amber-600 rounded-full mt-2 mr-2 flex-shrink-0"></span>
+                            {improvement}
+                          </li>
+                        )
+                      )}
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Word Count Info */}
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600">
+                      Word Count: {wordCount} words
+                    </span>
+                    <span className="text-gray-600">Target: 150-200 words</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Fallback feedback display (for backward compatibility) */}
+            {feedback && !evaluationResult && (
               <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                 <h4 className="font-medium text-green-900 mb-2 flex items-center">
                   <CheckCircleIcon className="w-5 h-5 mr-2" />
