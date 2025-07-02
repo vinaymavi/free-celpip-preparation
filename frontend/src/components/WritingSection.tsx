@@ -128,15 +128,24 @@ export default function WritingSection() {
                   setUserResponse("");
                   setTimerKey((prev) => prev + 1); // Reset timer on tab switch
                 }}
-                className={`group relative min-w-0 flex-1 overflow-hidden py-4 px-6 text-center text-sm font-medium hover:bg-gray-50 focus:z-10 transition-colors duration-200 focus:outline-none flex items-center justify-center ${
+                className={`group relative min-w-0 flex-1 overflow-hidden py-4 px-6 text-center text-sm font-medium hover:bg-gray-50 focus:z-10 transition-colors duration-200 focus:outline-none flex flex-col items-center justify-center ${
                   activeTab === tab.key
                     ? "border-primary-500 text-primary-600 border-b-2 bg-white"
                     : "border-transparent text-gray-500 hover:text-gray-700"
                 }`}
                 style={activeTab === tab.key ? { fontWeight: 600 } : {}}
               >
-                {tab.icon}
-                {tab.label}
+                <div className="flex items-center justify-center">
+                  {tab.icon}
+                  {tab.label}
+                </div>
+                <span
+                  className={`mt-1 text-xs ${
+                    activeTab === tab.key ? "text-primary-500" : "text-gray-500"
+                  }`}
+                >
+                  {tab.description}
+                </span>
               </button>
             ))}
           </nav>
