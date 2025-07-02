@@ -42,7 +42,7 @@ export default function WritingSection() {
   const samplePrompts = {
     email: {
       type: "email" as const,
-      title: "Responding to a Complaint",
+      title: "Writing for Email",
       prompt: `You recently stayed at the Grand Hotel during your vacation. Unfortunately, your experience was not satisfactory due to several issues including noise from construction work, a broken air conditioning unit, and poor customer service at the front desk. You have decided to write a complaint email to the hotel management.\n\nWrite an email to the hotel manager expressing your dissatisfaction with your recent stay. In your email, you should:\n- Explain the specific problems you encountered\n- Describe how these issues affected your vacation\n- Request appropriate compensation or resolution\n- Maintain a professional but firm tone throughout`,
       requirements: [
         "Use appropriate email format (greeting, body, closing)",
@@ -51,20 +51,20 @@ export default function WritingSection() {
         "Write 150-200 words",
         "Use proper grammar and vocabulary",
       ],
-      timeLimit: 27,
+      timeLimit: 27, // 27 minutes for email
     },
     essay: {
       type: "essay" as const,
-      title: "Technology and Education",
-      prompt: `Some people believe that technology has greatly improved education by making learning more accessible and interactive. Others argue that too much reliance on technology in education has negative effects on students' social skills and critical thinking abilities.\n\nDo you think technology has had a positive or negative impact on education? Give reasons and examples to support your opinion.\n\nWrite an essay responding to this question. In your essay, you should:\n- State your position clearly\n- Provide at least two main supporting arguments\n- Include specific examples or evidence\n- Address potential counterarguments\n- Write a clear conclusion`,
+      title: "Responding to Survey Questions",
+      prompt: `Respond to an opinion survey regarding commonly encountered issues and justify your choice.\n\nDo you think technology has had a positive or negative impact on education? Give reasons and examples to support your opinion.\n\nWrite an essay responding to this question. In your essay, you should:\n- State your position clearly\n- Provide at least two main supporting arguments\n- Include specific examples or evidence\n- Address potential counterarguments\n- Write a clear conclusion`,
       requirements: [
-        "Write 200-300 words",
+        "Write 150-200 words",
         "Include an introduction, body paragraphs, and conclusion",
         "State your position clearly",
         "Provide specific examples and evidence",
         "Use appropriate transitions and linking words",
       ],
-      timeLimit: 51,
+      timeLimit: 26, // 26 minutes for survey/essay
     },
   };
 
@@ -126,6 +126,7 @@ export default function WritingSection() {
                   setActiveTab(tab.key as "email" | "essay");
                   setCurrentPrompt(null);
                   setUserResponse("");
+                  setTimerKey((prev) => prev + 1); // Reset timer on tab switch
                 }}
                 className={`group relative min-w-0 flex-1 overflow-hidden py-4 px-6 text-center text-sm font-medium hover:bg-gray-50 focus:z-10 transition-colors duration-200 focus:outline-none flex items-center justify-center ${
                   activeTab === tab.key
@@ -230,12 +231,6 @@ export default function WritingSection() {
                   Submit Response
                 </button>
               </div>
-              <button
-                onClick={() => setCurrentPrompt(null)}
-                className="btn btn-outline w-full"
-              >
-                Back to Tasks
-              </button>
             </div>
           ) : null}
         </div>
