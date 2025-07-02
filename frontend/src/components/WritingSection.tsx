@@ -24,8 +24,9 @@ const writingTabs = [
   },
   {
     key: "essay",
-    label: "Essay Writing",
-    description: "Practice argumentative and opinion essays on various topics.",
+    label: "Responding to Survey Questions",
+    description:
+      "Practice responding to survey questions with opinion and argument.",
     icon: <DocumentTextIcon className="h-5 w-5 mr-2 text-green-600" />,
   },
 ];
